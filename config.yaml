@@ -1,0 +1,58 @@
+corpus:
+  specs:
+    - id: "TS 23.501"
+      short: "23501"
+      title: "System architecture for the 5G System (5GS)"
+      version: "18.12.0"
+      release: "Rel-18"
+      url: "https://www.3gpp.org/ftp/Specs/archive/23_series/23.501/"
+      file: "23501-ic0.zip"
+    - id: "TS 24.501"
+      short: "24501"
+      title: "Non-Access-Stratum (NAS) protocol for 5G System (5GS); Stage 3"
+      version: "18.14.0"
+      release: "Rel-18"
+      url: "https://www.3gpp.org/ftp/Specs/archive/24_series/24.501/"
+      file: "24501-ie0.zip"
+paths:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  chunks_file: "data/processed/chunks.jsonl"
+  results_dir: "eval/results"
+  corpus_doc: "CORPUS.md"
+chunking:
+  max_tokens: 450
+  overlap_tokens: 60
+  min_tokens: 40
+  max_table_tokens: 800
+  tokenizer: "cl100k_base"
+embeddings:
+  model: "BAAI/bge-base-en-v1.5"
+  query_instruction: "Represent this sentence for searching relevant passages: "
+  normalize: true
+  batch_size: 32
+vector_store:
+  path: "data/indexes/chroma"
+  collection: "specs_rel18"
+bm25:
+  path: "data/indexes/bm25.pkl"
+retrieval:
+  dense_k: 30
+  bm25_k: 30
+  rrf_k: 60
+  final_k: 6
+  use_hybrid: true
+  use_reranker: true
+  use_routing: true
+  use_acronym_expansion: true
+reranker:
+  model: "BAAI/bge-reranker-v2-m3"
+  fallback_model: "BAAI/bge-reranker-base"
+  refusal_threshold: 0.15
+llm:
+  provider: "groq"
+  model: "llama-3.3-70b-versatile"
+  temperature: 0.0
+  max_tokens: 1024
+refusal_message: "I could not find this information in the documents."
+seed: 42
