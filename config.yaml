@@ -50,6 +50,7 @@ retrieval:
   bm25_k: 30
   rrf_k: 60
   final_k: 6
+  rerank_candidates: 30   # fused candidates scored by the cross-encoder
   use_hybrid: true
   use_reranker: true
   use_routing: true
@@ -57,6 +58,10 @@ retrieval:
 reranker:
   model: "BAAI/bge-reranker-v2-m3"
   fallback_model: "BAAI/bge-reranker-base"
+  use_fallback_on_cpu: true   # v2-m3 (568M params) is slow and memory-hungry on CPU
+  device: "auto"              # auto | cpu | cuda
+  batch_size: 8
+  max_length: 512
   refusal_threshold: 0.15
 llm:
   provider: "groq"
