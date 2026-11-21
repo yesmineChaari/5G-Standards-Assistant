@@ -128,7 +128,7 @@ def heading_style_level(style_name: str) -> int | None:
 
 def _cell_text(tc: Any, doc: DocxDocument) -> str:
     """Text of a table cell, including nested tables, with line breaks as ``<br>``."""
-    parts = [clean_text(Paragraph(p, doc).text) for p in tc.iter(qn("w:p"))]
+    parts = [clean_text(Paragraph(p, doc).text).replace("\n", "<br>") for p in tc.iter(qn("w:p"))]
     text = "<br>".join(p for p in parts if p)
     return text.replace("|", "\\|")
 

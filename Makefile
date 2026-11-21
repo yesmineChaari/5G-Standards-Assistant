@@ -19,7 +19,8 @@ download:
 	$(PY) -m src.ingest.download
 
 ingest:
-	@echo Not implemented yet - steps 3-4.
+	$(PY) -m src.ingest.chunker
+	$(PY) scripts/inspect_chunks.py
 
 index:
 	@echo Not implemented yet - steps 5-6.
