@@ -66,8 +66,13 @@ reranker:
   refusal_threshold: 0.15
 llm:
   provider: "groq"
-  model: "llama-3.3-70b-versatile"
+  model: "openai/gpt-oss-120b"
   temperature: 0.0
-  max_tokens: 1024
+  # Reasoning models count their hidden reasoning in max_tokens, so the budgets are generous.
+  max_tokens: 4096
+  classify_max_tokens: 512
+  reasoning_effort: "low"   # sent only to reasoning models (gpt-oss, o-series); null to disable
+  max_retries: 3
+  backoff_s: 2.0
 refusal_message: "I could not find this information in the documents."
 seed: 42
