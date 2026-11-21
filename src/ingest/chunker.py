@@ -72,29 +72,66 @@ class _Piece:
 
 
 class TokenCounter:
-    """Token counting/truncation with a tiktoken encoding."""
+    """Token counting/truncation with either a tiktoken encoding or a Hugging Face tokenizer.
 
-    def __init__(self, encoding: str = "cl100k_base") -> None:
-        self._enc = tiktoken.get_encoding(encoding)
+    ``name`` is a tiktoken encoding (e.g. ``"cl100k_base"``) or a Hugging Face model id
+    (e.g. ``"BAAI/bge-base-en-v1.5"``). With a model id, counts are exactly those of the
+    embedding model, without the special tokens ([CLS]/[SEP]).
+    """
+
+    def __init__(self, name: str = "cl100k_base") -> None:
+        self.name = name
+        self._enc: Any = None
+        self._hf: Any = None
+        try:
+            self._enc = tiktoken.get_encoding(name)
+        except (KeyError, ValueError):
+            from transformers import AutoTokenizer
+
+            self._hf = AutoTokenizer.from_pretrained(name)
+            self._hf.model_max_length = 10**9  # counting only: no length warning
+        self.special_tokens = 0 if self._hf is None else self._hf.num_special_tokens_to_add()
 
     def count(self, text: str) -> int:
+        if self._hf is not None:
+            return len(self._hf(text, add_special_tokens=False)["input_ids"])
         return len(self._enc.encode(text, disallowed_special=()))
+
+    def _hf_offsets(self, text: str) -> list[tuple[int, int]]:
+        return self._hf(text, add_special_tokens=False, return_offsets_mapping=True)["offset_mapping"]
 
     def tail(self, text: str, n_tokens: int) -> str:
         """Last ``n_tokens`` tokens of ``text``, trimmed to start on a word boundary."""
-        ids = self._enc.encode(text, disallowed_special=())
-        if len(ids) <= n_tokens:
-            return text
-        out = self._enc.decode(ids[-n_tokens:])
+        if self._hf is not None:
+            offsets = self._hf_offsets(text)
+            if len(offsets) <= n_tokens:
+                return text
+            out = text[offsets[-n_tokens][0]:]
+        else:
+            ids = self._enc.encode(text, disallowed_special=())
+            if len(ids) <= n_tokens:
+                return text
+            out = self._enc.decode(ids[-n_tokens:])
         return out.split(" ", 1)[1] if " " in out else out
 
     def head(self, text: str, n_tokens: int) -> str:
+        """First ``n_tokens`` tokens of ``text``."""
+        if self._hf is not None:
+            offsets = self._hf_offsets(text)
+            if len(offsets) <= n_tokens:
+                return text
+            return text[: offsets[n_tokens][0]]
         ids = self._enc.encode(text, disallowed_special=())
         return self._enc.decode(ids[:n_tokens])
 
 
 class Chunker:
-    """Turn parsed :class:`Section` objects into :class:`Chunk` objects."""
+    """Turn parsed :class:`Section` objects into :class:`Chunk` objects.
+
+    If ``max_index_tokens`` is set (the embedding model window, e.g. 512), the limits of every
+    section are lowered so that ``text_for_index`` (header line + text + special tokens) never
+    exceeds it: no chunk is truncated by the embedding model.
+    """
 
     def __init__(
         self,
@@ -103,6 +140,7 @@ class Chunker:
         min_tokens: int = 40,
         max_table_tokens: int = 800,
         tokenizer: str = "cl100k_base",
+        max_index_tokens: int | None = None,
     ) -> None:
         if overlap_tokens >= max_tokens:
             raise ValueError("overlap_tokens must be smaller than max_tokens")
@@ -110,7 +148,9 @@ class Chunker:
         self.overlap_tokens = overlap_tokens
         self.min_tokens = min_tokens
         self.max_table_tokens = max_table_tokens
+        self.max_index_tokens = max_index_tokens
         self.tok = TokenCounter(tokenizer)
+        self._base_limits = (max_tokens, max_table_tokens)
 
     @classmethod
     def from_config(cls, cfg: dict[str, Any]) -> "Chunker":
@@ -121,7 +161,35 @@ class Chunker:
             min_tokens=c["min_tokens"],
             max_table_tokens=c["max_table_tokens"],
             tokenizer=c.get("tokenizer", "cl100k_base"),
+            max_index_tokens=c.get("max_index_tokens"),
         )
+
+    # ------------------------------------------------------------------ limits
+
+    @staticmethod
+    def header(spec_cfg: dict[str, Any], section: Section) -> str:
+        return f"[{spec_cfg['id']} | {spec_cfg['release']} | §{section.section} | {section.title}]"
+
+    def limits_for(self, section: Section, spec_cfg: dict[str, Any]) -> tuple[int, int]:
+        """(text limit, table limit) for a section, so that header + text fits the index window."""
+        text_max, table_max = self._base_limits
+        if self.max_index_tokens:
+            # header + "\n" + text + special tokens <= max_index_tokens
+            room = (
+                self.max_index_tokens
+                - self.tok.special_tokens
+                - self.tok.count(self.header(spec_cfg, section) + "\n")
+                - 1
+            )
+            text_max, table_max = min(text_max, room), min(table_max, room)
+        return text_max, table_max
+
+    def _set_limits(self, limits: tuple[int, int]) -> None:
+        self.max_tokens, self.max_table_tokens = limits
+
+    def index_tokens(self, text_for_index: str) -> int:
+        """Tokens the embedding model sees for this chunk (including special tokens)."""
+        return self.tok.count(text_for_index) + self.tok.special_tokens
 
     # ------------------------------------------------------------------ text splitting
 
@@ -203,19 +271,46 @@ class Chunker:
         inner = inner[:-1] if inner.endswith("|") else inner
         return [c.strip() for c in re.split(r"(?<!\\)\|", inner)]
 
-    def _prose_row(self, row: str, caption: str) -> list[tuple[str, str]]:
-        """Chunk an over-long single-cell row (prose stored in a table) as text pieces."""
-        cell = next(c for c in self._row_cells(row) if c)
-        paragraphs = [p.replace("\\|", "|").strip() for p in cell.split("<br>") if p.strip()]
-        label = f"{caption} (continued)" if caption else "Table (continued)"
-        budget_cfg = self.max_tokens - self.tok.count(label) - 1
+    def _pack_with_label(self, paragraphs: list[str], label: str, kind: str) -> list[tuple[str, str]]:
+        """Pack paragraphs into text pieces that each start with ``label`` and fit ``max_tokens``."""
         saved = self.max_tokens
-        self.max_tokens = budget_cfg  # pack so that label + text fits in max_tokens
+        self.max_tokens = saved - self.tok.count(label + "\n")  # label + text fits in max_tokens
+        self.overlap_tokens, saved_overlap = min(self.overlap_tokens, self.max_tokens // 3), self.overlap_tokens
         try:
             parts = self.pack_text(paragraphs)
         finally:
-            self.max_tokens = saved
-        return [("text", f"{label}\n{p}") for p in parts]
+            self.max_tokens, self.overlap_tokens = saved, saved_overlap
+        return [(kind, f"{label}\n{p}") for p in parts]
+
+    @staticmethod
+    def _cell_paragraphs(cell: str) -> list[str]:
+        return [p.replace("\\|", "|").strip() for p in cell.split("<br>") if p.strip()]
+
+    def _prose_row(self, row: str, caption: str) -> list[tuple[str, str]]:
+        """Chunk an over-long single-cell row (prose stored in a table) as text pieces."""
+        cell = next(c for c in self._row_cells(row) if c)
+        label = f"{caption} (continued)" if caption else "Table (continued)"
+        return self._pack_with_label(self._cell_paragraphs(cell), label, "text")
+
+    def _record_row(self, row: str, headers: list[str], caption: str) -> list[tuple[str, str]]:
+        """Render an over-long multi-cell row as a labelled record (``Header: value`` lines).
+
+        Every piece starts with the caption and the row key (first non-empty cell), so a row
+        split over several chunks stays identifiable (e.g. ``(row T3520)``).
+        """
+        cells = self._row_cells(row)
+        key = next((c for c in cells if c), "")
+        paragraphs: list[str] = []
+        for i, value in enumerate(cells):
+            if not value:
+                continue
+            name = headers[i] if i < len(headers) and headers[i] else f"Column {i + 1}"
+            parts = self._cell_paragraphs(value)
+            name = name.replace("<br>", " ").replace("\\|", "|")
+            paragraphs.append(f"{name}: {parts[0]}")
+            paragraphs += parts[1:]
+        label = f"{caption or 'Table'} (row {self._cell_paragraphs(key)[0] if key else '?'})"
+        return self._pack_with_label(paragraphs, label, "table")
 
     def _is_prose_row(self, row: str, budget: int) -> bool:
         return self.tok.count(row) > budget and sum(1 for c in self._row_cells(row) if c) == 1
@@ -237,8 +332,7 @@ class Chunker:
         if len(lines) <= 2:  # header-only table
             if self._is_prose_row(lines[0], self.max_table_tokens):
                 return self._prose_row(lines[0], caption)
-            logger.warning("Over-long table kept whole (%s)", caption or lines[0][:60])
-            return [("table", full)]
+            return self._record_row(lines[0], [], caption)
         if self.tok.count(lines[0]) > self.max_table_tokens // 4:
             # Header row too large to repeat (e.g. prose in the first row): treat it as a body row.
             prefix = "\n".join(cap)
@@ -257,16 +351,19 @@ class Chunker:
                 parts.append(("table", "\n".join(([prefix] if prefix else []) + group)))
                 group, group_tokens = [], 0
 
+        headers = self._row_cells(lines[0]) if body is not None and prefix.endswith(lines[1]) else []
         for row in body:
             n = self.tok.count(row) + 1
-            if n > budget and self._is_prose_row(row, budget):
+            if n > budget:
+                # The row cannot fit in one table chunk: keep its content as prose / record.
                 flush()
-                parts += self._prose_row(row, caption)
+                if self._is_prose_row(row, budget):
+                    parts += self._prose_row(row, caption)
+                else:
+                    parts += self._record_row(row, headers, caption)
                 continue
             if group and group_tokens + n > budget:
                 flush()
-            if n > budget:
-                logger.warning("Table row longer than max_table_tokens kept whole (%s)", caption or row[:60])
             group.append(row)
             group_tokens += n
         flush()
@@ -338,8 +435,14 @@ class Chunker:
     def _labelled(section: Section, text: str) -> str:
         return f"§{section.section} {section.title}\n{text}"
 
-    def merge_small_sections(self, items: list[tuple[Section, list[_Piece]]]) -> list[_Piece]:
-        """Merge short text-only sections with their following sibling sections."""
+    def merge_small_sections(
+        self, items: list[tuple[Section, list[_Piece]]], spec_cfg: dict[str, Any] | None = None
+    ) -> list[_Piece]:
+        """Merge short text-only sections with their following sibling sections.
+
+        The merged chunk carries the header of its first section, so the text limit of that
+        section applies to the whole group.
+        """
         out: list[_Piece] = []
         i = 0
         while i < len(items):
@@ -348,6 +451,7 @@ class Chunker:
                 out += pieces
                 i += 1
                 continue
+            text_limit = self.limits_for(section, spec_cfg)[0] if spec_cfg else self._base_limits[0]
             group = [(section, pieces[0].text)]
             total = self.tok.count(self._labelled(section, pieces[0].text))
             j = i + 1
@@ -357,12 +461,12 @@ class Chunker:
                     break
                 if len(nxt_pieces) != 1 or nxt_pieces[0].kind != "text":
                     break
-                labelled = self._labelled(nxt, nxt_pieces[0].text)
-                n = self.tok.count(labelled)
-                if total + n > self.max_tokens:
+                candidate = "\n".join(self._labelled(s, t) for s, t in group + [(nxt, nxt_pieces[0].text)])
+                n_candidate = self.tok.count(candidate)
+                if n_candidate > text_limit:
                     break
                 group.append((nxt, nxt_pieces[0].text))
-                total += n
+                total = n_candidate
                 j += 1
             if len(group) == 1:
                 out += pieces
@@ -381,9 +485,16 @@ class Chunker:
             sections: Parsed sections of one spec, in document order.
             spec_cfg: The spec entry from ``config.yaml`` (id, short, version, release).
         """
-        items = [(s, self.section_pieces(s)) for s in sections]
-        items = [(s, p) for s, p in items if p]
-        pieces = self.merge_small_sections(items)
+        items: list[tuple[Section, list[_Piece]]] = []
+        try:
+            for s in sections:
+                self._set_limits(self.limits_for(s, spec_cfg))
+                pieces_s = self.section_pieces(s)
+                if pieces_s:
+                    items.append((s, pieces_s))
+        finally:
+            self._set_limits(self._base_limits)
+        pieces = self.merge_small_sections(items, spec_cfg)
 
         chunks: list[Chunk] = []
         part_counter: dict[str, int] = defaultdict(int)
@@ -391,7 +502,7 @@ class Chunker:
             first = piece.sections[0]
             part_counter[first.section] += 1
             part = part_counter[first.section]
-            header = f"[{spec_cfg['id']} | {spec_cfg['release']} | §{first.section} | {first.title}]"
+            header = self.header(spec_cfg, first)
             chunks.append(
                 Chunk(
                     chunk_id=f"{spec_cfg['short']}_{first.section}_{part:03d}",
@@ -409,6 +520,13 @@ class Chunker:
                     text=piece.text,
                 )
             )
+        if self.max_index_tokens:
+            too_long = [c.chunk_id for c in chunks if self.index_tokens(c.text_for_index) > self.max_index_tokens]
+            if too_long:
+                logger.warning(
+                    "%s: %d chunks exceed max_index_tokens=%d (unsplittable content): %s",
+                    spec_cfg["id"], len(too_long), self.max_index_tokens, too_long[:10],
+                )
         return chunks
 
 

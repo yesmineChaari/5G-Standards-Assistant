@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 HEADING_STYLE_RE = re.compile(r"^(?:Heading\s?|H)(\d)$")
 
 # Section number + title, e.g. "5.5.1.2.2\tInitial registration", "5.20b.1 ...", "D.1 ...".
-# Fallback detection on the text, as described in the implementation plan.
+# Used to read the section number and title from the heading text.
 SECTION_RE = re.compile(
     r"^((?:\d+[A-Za-z]?)(?:\.\d+[A-Za-z]?)*|[A-Z](?:\.\d+[A-Za-z]?)+)\s+(\S.*)$", re.S
 )

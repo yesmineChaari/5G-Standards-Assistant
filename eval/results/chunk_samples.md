@@ -2,197 +2,199 @@
 
 10 chunks drawn with seed 42. Review: section number, title, section path, table formatting, and that the text belongs to the section.
 
-## 1. `23501_5.27.1.3_002`
+## 1. `23501_5.21.2.3_001`
 
 - spec: TS 23.501 (Rel-18, V18.12.0)
-- section: §5.27.1.3  title: Support for multiple (g)PTP domains
-- section_path: 5 > 5.27 > 5.27.1 > 5.27.1.3
+- section: §5.21.2.3  title: Procedure for AMF Auto-recovery
+- section_path: 5 > 5.21 > 5.21.2 > 5.21.2.3
 - merged_sections: -
-- type: text  part: 2  tokens: 181
+- type: text  part: 1  tokens: 248
 
 ```text
-[TS 23.501 | Rel-18 | §5.27.1.3 | Support for multiple (g)PTP domains]
-The process described in clause 5.27.1.2.2 is thus repeated for each (g)PTP domain between a DS-TT and the NW-TT it is connected to.
-NOTE 2: If all (g)PTP domains can be made synchronous and the synchronization can be provided by the 5G internal system clock, the NW-TT or DS-TT(s) generates the (g)PTP event messages of all domains using 5G clock as described in clause 5.27.1.7.
-NOTE 3: This Release of the specification supports multiple gPTP domains as defined in IEEE Std 802.1AS [104]. If a 5GS TSN bridge supports stream gates and/or transmission gates as defined in IEEE Std 802.1Q [98], then they operate based on a single given gPTP domain.
+[TS 23.501 | Rel-18 | §5.21.2.3 | Procedure for AMF Auto-recovery]
+In order to try and handle AMF failure in a graceful manner (i.e. without impacting the UE), AMF can either back up the UE contexts in UDSF, or per GUAMI granularity in other AMFs (serving as backup AMF for the indicated GUAMI).
+NOTE 1: Frequency of backup is left to implementation.
+For deployments without UDSF, for each GUAMI the backup AMF information (in association to the GUAMI) is configured in the AMF. The AMF sends this information to 5G-AN and other CP NFs during the N2 setup procedure or the first (per NF) interaction with other CP NFs.
+In the case that an AMF fails and the 5G-AN/peer CP NFs detect that the AMF has failed, or the 5G-AN/peer CP NFs receives notification from another AMF in the same AMF set that this AMF has failed, following actions are taken:
+- The OAM deregister the AMF from NRF indicating due to AMF failure.
+- 5G-AN marks this AMF as failed and not consider the AMF for selection until explicitly notified.
 ```
 
-## 2. `23501_5.4.4a_001`
+## 2. `23501_5.4.4.2a_001`
 
 - spec: TS 23.501 (Rel-18, V18.12.0)
-- section: §5.4.4a  title: UE MM Core Network Capability handling
-- section_path: 5 > 5.4 > 5.4.4a
+- section: §5.4.4.2a  title: UE Radio Capability Match Request
+- section_path: 5 > 5.4 > 5.4.4 > 5.4.4.2a
 - merged_sections: -
-- type: text  part: 1  tokens: 448
+- type: text  part: 1  tokens: 178
 
 ```text
-[TS 23.501 | Rel-18 | §5.4.4a | UE MM Core Network Capability handling]
-The UE MM Core Network Capability is split into the S1 UE network capability (mostly for E-UTRAN access related core network parameters) and the UE 5GMM Core Network Capability (mostly to include other UE capabilities related to 5GCN or interworking with EPS) as defined in TS 24.501 [47] and contains non radio-related capabilities, e.g. the NAS security algorithms, etc. The S1 UE network capability is transferred between all CN nodes at AMF to AMF, AMF to MME, MME to MME and MME to AMF changes. The UE 5GMM Core Network Capability is transferred only at AMF to AMF changes.
-In order to ensure that the UE MM Core Network Capability information stored in the AMF is up to date (e.g. to handle the situation when the USIM is moved into a different device while out of coverage and the old device did not send the Detach message; and the cases of inter-RAT Registration Area Update), the UE shall send the UE MM Core Network Capability information to the AMF during the Initial Registration and Mobility Registration Update procedure within the NAS message.
-The AMF shall store always the latest UE MM Core Network Capability received from the UE. Any UE MM Core Network Capability that an AMF receives from an old AMF/MME is replaced when the UE provides the UE MM Core Network Capability with Registration signalling.
-If the UE's UE MM Core Network Capability information changes (in either CM-CONNECTED or in CM-IDLE state), the UE shall perform a Mobility Registration Update procedure when it next returns to NG-RAN coverage. See clause 4.2.2 of TS 23.502 [3].
-The UE shall indicate in the UE 5GMM Core Network Capability if the UE supports:
-- Attach in EPC with Request type "Handover" in PDN CONNECTIVITY Request message (clause 5.3.2.1 of TS 23.401 [26]).
-- EPC NAS.
-- SMS over NAS.
-- LCS.
-- 5G SRVCC from NG-RAN to UTRAN, as specified in TS 23.216 [88].
+[TS 23.501 | Rel-18 | §5.4.4.2a | UE Radio Capability Match Request]
+If the AMF requires more information on the UE radio capabilities support to be able to set the IMS voice over PS Session Supported Indication (see clause 5.16.3), then the AMF may send a UE Radio Capability Match Request message to the NG-RAN. This procedure is typically used during the Registration Procedure or when AMF has not received the Voice Support Match Indicator (as part of the 5GMM Context).
+NOTE: During the Registration Procedure, if the AMF does not already have the UEs radio capabilities and if the RAT where the UE is requires the establishment of AN security context prior to retrieval of radio capabilities, the AMF needs to initiate "Initial Context Setup" procedure as defined in TS 38.413 [34] to provide the 5G-AN with security context, before sending a UE Radio Capability Match Request message.
 ```
 
-## 3. `24501_5.4.1.2.2.11_001`
+## 3. `24501_5.3.5.2_004`
 
 - spec: TS 24.501 (Rel-18, V18.14.0)
-- section: §5.4.1.2.2.11  title: UE handling EAP-failure message
-- section_path: 5 > 5.4 > 5.4.1 > 5.4.1.2 > 5.4.1.2.2 > 5.4.1.2.2.11
+- section: §5.3.5.2  title: 3GPP access service area restrictions
+- section_path: 5 > 5.3 > 5.3.5 > 5.3.5.2
 - merged_sections: -
-- type: text  part: 1  tokens: 408
+- type: text  part: 4  tokens: 414
 
 ```text
-[TS 24.501 | Rel-18 | §5.4.1.2.2.11 | UE handling EAP-failure message]
-Upon receiving an EAP-failure message, the UE shall delete the partial native 5G NAS security context and shall delete the new KAUSF and the new KSEAF, if any were created as described in clause 5.4.1.2.2.3.
-The UE shall consider the procedure complete.
-If the EAP-failure message is received in an AUTHENTICATION REJECT message:
-1) if the AUTHENTICATION REJECT message has been successfully integrity checked by the NAS:
-- the UE shall set the update status to 5U3 ROAMING NOT ALLOWED, delete the stored 5G-GUTI, TAI list, last visited registered TAI and ngKSI;
-In case of PLMN, the USIM shall be considered invalid until switching off the UE or the UICC containing the USIM is removed.
-In case of SNPN, if the UE is neither registered for onboarding services in SNPN nor performing initial registration for onboarding services in SNPN and the UE does not support access to an SNPN using credentials from a credentials holder and does not support equivalent SNPNs, the selected entry of the "list of subscriber data" with the SNPN identity of the current SNPN shall be considered invalid until the UE is switched off or the entry is updated. Additionally, the UE shall consider the USIM as invalid for the current SNPN until switching off or the UICC containing the USIM is removed.
-In case of SNPN, if the UE is neither registered for onboarding services in SNPN nor performing initial registration for onboarding services in SNPN and the UE supports access to an SNPN using credentials from a credentials holder, equivalent SNPNs, or both, the UE shall consider the selected entry of the "list of subscriber data" as invalid until the UE is switched off or the entry is updated. Additionally, the UE shall consider the USIM as invalid for the entry until switching off or the UICC containing the USIM is removed.
+[TS 24.501 | Rel-18 | §5.3.5.2 | 3GPP access service area restrictions]
+of the user-plane resources via 3GPP access is allowed; for all other cases, the UE shall indicate for each PDU session in the Allowed PDU session status IE that re-establishment of the user-plane resources via 3GPP access is not allowed; and
+2) if the UE is in 5GMM-CONNECTED mode or 5GMM-CONNECTED mode with RRC inactive indication over 3GPP access, the UE:
+i) shall not perform the registration procedure for mobility and periodic registration update with Uplink data status IE except for emergency services or for high priority access;
+ii) shall not initiate a service request procedure except for:
+- emergency services;
+- emergency services fallback;
+- high priority access;
+- responding to paging or responding to a notification.
+The UE shall not include the Uplink data status IE in the SERVICE REQUEST message or CONTROL PLANE SERVICE REQUEST message except for emergency services or for high priority access. In case of emergency services, the UE shall indicate that uplink data is pending only for the PDU session for emergency services;
+iii) shall not initiate a 5GSM procedure except for:
+- emergency services;
+- high priority access; or
+- indicating a change of 3GPP PS data off UE status;
+iv) shall not perform the NAS transport procedure except for the sending:
+- 5GSM messages for UE-requested 5GSM procedures allowed in iii) above;
+- 5GSM messages for network-requested 5GSM procedures;
+- SMS;
+- an LPP message;
+- a UPP-CMI container;
+- an SLPP message;
+- a location services message;
+- an SOR transparent container;
+- a UE policy container;
+- a UE parameters update transparent container; or
+- a CIoT user data container; and
+NOTE 1: The contents of CIoT user data container can be data that is not for exception reports, or data that is for exception reports if allowed for the UE (see clause 6.2.13).
 ```
 
-## 4. `24501_4.22.3_001`
+## 4. `24501_4.6.2.4_004`
 
 - spec: TS 24.501 (Rel-18, V18.14.0)
-- section: §4.22.3  title: Authorization of C2 communication
-- section_path: 4 > 4.22 > 4.22.3
+- section: §4.6.2.4  title: Network slice-specific authentication and authorization
+- section_path: 4 > 4.6 > 4.6.2 > 4.6.2.4
 - merged_sections: -
-- type: text  part: 1  tokens: 422
+- type: text  part: 4  tokens: 233
 
 ```text
-[TS 24.501 | Rel-18 | §4.22.3 | Authorization of C2 communication]
-The 5GS supports USS authorization of C2 communication for pairing of UAV and UAV-C. The pairing of UAV and UAV-C needs to be authorized by USS successfully before the user plane connectivity for C2 communication (over Uu or over NR-PC5) is enabled. For C2 authorization procedure, the UE supporting UAS services provides to the network with CAA-level UAV ID.
-The USS authorization of UAV flight can also be performed during the C2 authorization procedure. The UE supporting UAS services provides the UAV flight authorization information to the network if provided by upper layers.
-NOTE 1: The C2 authorization payload in the service-level-AA payload can include one, some or all of the pairing information for C2 communication, an indication of the request for direct C2 communication, pairing information for direct C2 communication, and the UAV flight authorization information (see clauses 6.4.1.2 and 6.4.2.2).
-The UE supporting UAS services can establish a PDU session for the C2 communication by providing the CAA-level UAV ID and the C2 authorization payload. The SMF upon reception of the UE's request for the PDU session establishment, determines that authorization is required based on the DNN and S-NSSAI combination of the PDU session is for aerial services according to user's subscription data and the CAA-level UAV ID included in the request.
-If a UE supporting UAS services uses a common PDU session for both USS communication and C2 communication, the C2 communication can be authorized using UUAA-SM procedure during the PDU session establishment procedure or during the PDU session modification procedure. If the pairing of UAV and UAV-C is revoked, the network shall disable C2 communication for the PDU session. The SMF upon reception of the UE's request for the PDU session establishment, determines that authorization is required based on the DNN and S-NSSAI combination of the PDU session is for aerial services according to user's subscription data and the CAA-level UAV ID included in the request.
+[TS 24.501 | Rel-18 | §4.6.2.4 | Network slice-specific authentication and authorization]
+using the generic UE configuration update procedure as specified in the clause 5.4.4 and inform the SMF to release all PDU sessions associated with the S-NSSAI for which network slice-specific re-authentication and re-authorization fails or network slice-specific authorization is revoked;
+b) if network slice-specific re-authentication and re-authorization fails or network slice-specific authorization is revoked for all S-NSSAIs in the allowed NSSAI or the partially allowed NSSAI but there are one or more default S-NSSAIs which are not subject to network slice-specific authentication and authorization or for which the network slice-specific authentication and authorization has been successfully performed, the AMF updates the allowed NSSAI or the partially allowed NSSAI containing these default S-NSSAIs and the rejected NSSAI accordingly using the generic UE configuration update procedure as specified in the clause 5.4.4. The AMF shall also inform the SMF to release all PDU sessions associated with the S-NSSAI for which network slice-specific re-authentication and re-authorization fails or network slice-specific authorization is revoked; or
 ```
 
-## 5. `24501_4.5.2A_011`
+## 5. `24501_3.1_011`
 
 - spec: TS 24.501 (Rel-18, V18.14.0)
-- section: §4.5.2A  title: Determination of the access identities and access category associated with a request for access for UEs operating in SNPN access operation mode over 3GPP access
-- section_path: 4 > 4.5 > 4.5.2A
+- section: §3.1  title: Definitions
+- section_path: 3 > 3.1
 - merged_sections: -
-- type: table  part: 11  tokens: 663
+- type: text  part: 11  tokens: 447
 
 ```text
-[TS 24.501 | Rel-18 | §4.5.2A | Determination of the access identities and access category associated with a request for access for UEs operating in SNPN access operation mode over 3GPP access]
-Table 4.5.2A.2: Mapping table for access categories
-| Rule # | Type of access attempt | Requirements to be met | Access Category |
-|---|---|---|---|
-| NOTE 1: Void<br>NOTE 2: Access for the purpose of NAS signalling connection recovery during an ongoing service as defined in clause 4.5.5, or for the purpose of NAS signalling connection establishment following fallback indication from lower layers during an ongoing service as defined in clause 4.5.5, is mapped to the access category of the ongoing service in order to derive an RRC establishment cause, but barring checks will be skipped for this access attempt.<br>NOTE 2a: Access for the purpose of NAS signalling connection recovery during an ongoing MO IMS registration related signalling as defined in clause 4.5.5, or for the purpose of NAS signalling connection establishment following fallback indication from lower layers during an ongoing MO IMS registration related signalling as defined in clause 4.5.5, is mapped to the access category of the MO IMS registration related signalling in order to derive an RRC establishment cause, but barring checks will be skipped for this access attempt.<br>NOTE 3: If the UE selects a new SNPN, then the selected SNPN is used to check the membership; otherwise the UE uses the RSNPN or an SNPN equivalent to the RSNPN.<br>NOTE 4: This includes the 5GMM connection management procedures triggered by the UE-initiated NAS transport procedure for transporting the MO SMS.<br>NOTE 5: The UE configured for NAS signalling low priority is not supported in this release of specification.<br>NOTE 6: If the access category applicable for the access attempt is 1, then the UE shall additionally determine a second access category from the range 3 to 7. If more than one access category matches, the access category of the lowest rule number shall be chosen. The UE shall use the second access category only to derive an RRC establishment cause for the access attempt.<br>NOTE 7: Void.<br>NOTE 8: For the definition of categories a, b and c associated with access category 1, see 3GPP TS 22.261 [3]. The categories associated with access category 1 are distinct from the categories a, b and c associated with EAB (see 3GPP TS 22.011 [1A]).<br>NOTE 9: This includes:<br>a) the UE-initiated NAS transport procedure for transporting a mobile originated location<br>request;<br>b) the 5GMM connection management procedure triggered by a) above; and<br>c) NAS signalling connection recovery during an ongoing 5GC-MO-LR procedure.<br>NOTE 10: This includes:<br>a) the UE-initiated NAS transport procedure for transporting a mobile originated signalling<br>transaction towards the PCF;<br>b) the 5GMM connection management procedure triggered by a) above; and<br>c) NAS signalling connection recovery during an ongoing UE-requested policy provisioning procedure for V2XP (see 3GPP TS 24.587 [19B]). |  |  |  |
+[TS 24.501 | Rel-18 | §3.1 | Definitions]
+MBSR-UE: a UE that is operating as a MBSR and supporting UE NAS functionalities specified in this specification.
+Mobility registration for disaster roaming services: A registration performed with 5GS registration type "disaster roaming mobility registration updating" in the REGISTRATION REQUEST message.
+MUSIM UE: A UE with multiple valid USIMs, capable of initiating and maintaining simultaneous separate registration states over 3GPP access with PLMN(s) using identities and credentials associated with those USIMs and supporting one or more of the N1 NAS signalling connection release, the paging indication for voice services, the reject paging request, the paging restriction and the paging timing collision control (see 3GPP TS 23.501 [8]).
+N1 mode: A mode of a UE allowing access to the 5G core network via the 5G access network.
+Native 5G-GUTI: A 5G-GUTI previously allocated by an AMF.
+Non 5G capable over WLAN (N5CW) device: A device that is not capable to operate as a UE supporting NAS signalling with the 5GCN over a WLAN access network. However, this device may be capable to operate as a UE supporting NAS signalling with 5GCN using the N1 reference point as specified in this specification over 3GPP access. An N5CW device may be allowed to access the 5GCN via trusted WLAN access network (TWAN) that supports a trusted WLAN interworking function (TWIF) as specified in 3GPP TS 24.502 [18].
+Non-CAG Cell: An NR cell which does not broadcast any Closed Access Group identity or an E-UTRA cell connected to 5GCN.
+Non-equivalent PLMN: A PLMN which is not an equivalent PLMN.
+Non-equivalent SNPN: An SNPN which is not an equivalent SNPN.
+Non-globally-unique SNPN identity: An SNPN identity with an NID whose assignment mode is set to 1 (see 3GPP TS 23.003 [4]).
 ```
 
-## 6. `23501_5.31.18_003`
+## 6. `23501_5.30.3.5_001`
 
 - spec: TS 23.501 (Rel-18, V18.12.0)
-- section: §5.31.18  title: User Plane CIoT 5GS Optimisation
-- section_path: 5 > 5.31 > 5.31.18
+- section: §5.30.3.5  title: Support of emergency services in CAG cells
+- section_path: 5 > 5.30 > 5.30.3 > 5.30.3.5
 - merged_sections: -
-- type: text  part: 3  tokens: 249
+- type: text  part: 1  tokens: 273
 
 ```text
-[TS 23.501 | Rel-18 | §5.31.18 | User Plane CIoT 5GS Optimisation]
-establishes an NGAP UE association with a new NG-RAN node different from the stored NGAP UE association, e.g. the UE initiates service request or registration procedure from a different NG-RAN node, the AMF initiates UE N2 release command towards the old NG-RAN node.
-NG-RAN maintains the N3 tunnel endpoint information while a UE is in CM-IDLE with Suspend. UPF is instructed to remove DL N3 Tunnel Info of AN during Connection Suspend procedure, while UPF keeps UL N3 Tunnel Info (i.e. UPF accepts and forwards UL data). If a UE sends MO data with resume procedure, the NG-RAN can send the MO data to the UPF which is addressed by the N3 tunnel endpoint information. In the case of change of serving NG-RAN node due to UE mobility, if NG-RAN determines that it is not able to connect to the UPF which is addressed by the N3 tunnel endpoint information, NG-RAN performs Path Switch procedure before sending the MO data received from the UE.
-Early Data Transmission may be initiated by the UE for mobile originated User Plane CIoT 5GS Optimisation when the RAT Type is E-UTRA.
+[TS 23.501 | Rel-18 | §5.30.3.5 | Support of emergency services in CAG cells]
+Emergency Services are supported in CAG cells, for UEs supporting CAG, whether normally registered or emergency registered as described in clause 5.16.4 and in clause 4.13.4 of TS 23.502 [3].
+A UE may camp on an acceptable CAG cell in limited service state as specified in TS 23.122 [17] and TS 38.304 [50], based on operator policy defined in TS 38.300 [27].
+NOTE: Support for Emergency services requires each cell with a Cell Identity associated with PLMNs or PNI-NPNs to only be connected to AMFs that supports emergency services.
+The UE shall select a PLMN (of a CAG cell or non-CAG cell), as described in TS 23.122 [17] and TS 23.167 [18], when initiating emergency services from limited service state.
+During handover to a CAG cell, if the UE is not authorized to access the target CAG cell as described in clause 5.30.3.4 and has emergency services, the target NG-RAN node only accepts the emergency PDU Session and the target AMF releases the non-emergency PDU Sessions that were not accepted by the NG-RAN node. Upon completion of handover the UE behave as emergency registered.
 ```
 
-## 7. `23501_5.20_005`
+## 7. `23501_5.17.7.2.3_001`
 
 - spec: TS 23.501 (Rel-18, V18.12.0)
-- section: §5.20  title: External Exposure of Network Capability
-- section_path: 5 > 5.20
+- section: §5.17.7.2.3  title: Relaying
+- section_path: 5 > 5.17 > 5.17.7 > 5.17.7.2 > 5.17.7.2.3
 - merged_sections: -
-- type: text  part: 5  tokens: 419
+- type: text  part: 1  tokens: 66
 
 ```text
-[TS 23.501 | Rel-18 | §5.20 | External Exposure of Network Capability]
-- the address of the UE as provided by the AF; this may be an IP address or a MAC address;
-- the corresponding DNN and/or S-NSSAI information: this may have been provided by the AF or determined by the NEF based on the requesting AF; this is needed if the UE address is an IP address.
-The NEF may provide a UE Identifier in the GPSI format of MSISDN to an authenticated and authorized AF:
-- that fulfils the conditions described in clause 4.15.10A of TS 23.502 [3]; and
-- that has explicitly requested a translation from the UE address to a unique UE identifier (via Nnef_UEId service) when the UE MSISDN exposure is allowed and authorized by the operator; or
-- the NEF may provide an AF specific UE Identifier to the AF:
-- that has explicitly requested a translation from the address of the UE to a unique UE identifier (via Nnef_UEId service); or
-- that has implicitly requested a translation from the address of the UE to an AF specific UE Identifier by requesting external exposure about an individual UE identified by its address.
-The AF may have its own means to maintain the AF specific UE Identifier through, e.g. an AF session. After the retrieval of an AF specific UE Identifier the AF shall not keep maintaining a mapping between this identifier and the UE IP address as this mapping may change.
-The AF specific UE Identifier shall not correspond to a MSISDN; it is represented as a GPSI in the form of an External Identifier. When used as an AF specific UE identifier, the External Identifier provided by the 5GCN shall be different for different AF.
-NOTE 1: This is to protect user privacy.
-NOTE 2: The AF specific UE identifier is ensured to be unique across different AFs as defined in TS 23.003 [19] by configuration. Such configuration is assumed to be coordinated between the different involved entities (e.g. NEF(s) and UDM/UDR).
+[TS 23.501 | Rel-18 | §5.17.7.2.3 | Relaying]
+The AMF performs relaying between N2 and N26 messages as described in TS 38.413 [34] and TS 29.274 [101].
+The MME performs relaying between S1 and N26 message as described in TS 36.413 [100] and TS 29.274 [101].
 ```
 
-## 8. `24501_9.11.3.77_006`
+## 8. `24501_9.11.3.31_003`
 
 - spec: TS 24.501 (Rel-18, V18.14.0)
-- section: §9.11.3.77  title: Paging restriction
-- section_path: 9 > 9.11 > 9.11.3 > 9.11.3.77
+- section: §9.11.3.31  title: MICO indication
+- section_path: 9 > 9.11 > 9.11.3 > 9.11.3.31
 - merged_sections: -
-- type: table  part: 6  tokens: 405
+- type: table  part: 3  tokens: 236
 
 ```text
-[TS 24.501 | Rel-18 | §9.11.3.77 | Paging restriction]
-Table 9.11.3.77.1: Paging restriction information element
-| Paging restriction type (bits 4 to 1 of octet 3) |  |  |  |  |
-|---|---|---|---|---|
-| Bits |  |  |  |  |
-| 4 | 3 | 2 | 1 |  |
-| 0 | 0 | 0 | 0 | reserved |
-| 0 | 0 | 0 | 1 | All paging is restricted |
-| 0 | 0 | 1 | 0 | All paging is restricted except for voice service |
-| 0 | 0 | 1 | 1 | All paging is restricted except for specified PDU session(s) |
-| 0 | 1 | 0 | 0 | All paging is restricted except for voice service and specified PDU session(s) |
-| All other values are reserved. |  |  |  |  |
-| Bits 5 to 8 of octet 3 are spare and shall be coded as zero.<br>PSI(x) (bits 8 to 1 of octet 4 and octet 5):<br>This field indicates the PDU session identity of the PDU session for which paging is restricted.<br>PSI(0): (bit 1 of octet 4)<br>Spare and shall be coded as zero.<br>PSI(1) – PSI(15):<br>0 indicates that paging is restricted for the PDU session associated with the PDU session identity.<br>1 indicates that paging is not restricted for the PDU session associated with the PDU session identity. |  |  |  |  |
-| All bits in octet 6 to 35 are spare and shall be coded as zero, if the respective octet is included in the information element. |  |  |  |  |
+[TS 24.501 | Rel-18 | §9.11.3.31 | MICO indication]
+Table 9.11.3.31.1: MICO indication
+| Registration Area Allocation Indication (RAAI) (octet 1, bit 1) |  |  |
+|---|---|---|
+| In the network to UE direction: |  |  |
+| Bit |  |  |
+| 1 |  |  |
+| 0 | all PLMN registration area not allocated |  |
+| 1 | all PLMN registration area allocated |  |
+| In the UE to network direction bit 1 is spare. The UE shall set this bit to zero. |  |  |
+| Strictly Periodic Registration Timer Indication (SPRTI) (octet 1, bit 2) |  |  |
+| In the network to UE and the UE to network direction: |  |  |
+| Bit |  |  |
+| 2 |  |  |
+| 0 | strictly periodic registration timer not supported |  |
+| 1 | strictly periodic registration timer supported |  |
+| Bits 3 and 4 are spare and shall be coded as zero.<br>NOTE: In the network to UE direction in the CONFIGURATION UPDATE COMMAND message, bits 1 and 2 shall be coded as zero. |  |  |
 ```
 
-## 9. `23501_5.16.3.10_001`
+## 9. `23501_5.15.17_005`
 
 - spec: TS 23.501 (Rel-18, V18.12.0)
-- section: §5.16.3.10  title: IMS Voice Service via EPS Fallback or RAT fallback in 5GS
-- section_path: 5 > 5.16 > 5.16.3 > 5.16.3.10
+- section: §5.15.17  title: Partial Network Slice support in a Registration Area
+- section_path: 5 > 5.15 > 5.15.17
 - merged_sections: -
-- type: text  part: 1  tokens: 442
+- type: text  part: 5  tokens: 337
 
 ```text
-[TS 23.501 | Rel-18 | §5.16.3.10 | IMS Voice Service via EPS Fallback or RAT fallback in 5GS]
-In order to support various deployment scenarios for obtaining IMS voice service, the UE and NG-RAN may support the mechanism to direct or redirect the UE from NG-RAN either towards E-UTRA connected to 5GC (RAT fallback) or towards EPS (E-UTRAN connected to EPC System fallback).
-Following principles apply for IMS Voice Service:
-- The serving AMF indicates toward the UE during the Registration procedure that IMS voice over PS session is supported.
-- If a request for establishing the QoS Flow for IMS voice reaches the NG-RAN, the NG-RAN responds indicating rejection of the establishment request and the NG-RAN may trigger one of the following procedures depending on UE capabilities, N26 availability, network configuration and radio conditions:
-- Redirection to EPS;
-- Handover procedure to EPS;
-- Redirection to E-UTRA connected to 5GC; or
-- Handover to E-UTRA connected to 5GC.
-- If needed, Network Provided Location Information is provided as described in clauses 4.13.6.1 and 4.13.6.2 of TS 23.502 [3].
-- The ongoing IMS voice session is not impacted by a change of the IMS voice over PS session indicator from supported to unsupported (e.g. the UE receives during RAT Fallback or EPS Fallback the IMS voice over PS session indicator indicating that IMS voice over PS sessions are not supported).
-NOTE: Any change in IMS voice over PS session indicator applies to new IMS sessions initiated only after the ongoing IMS voice session is terminated.
-During any release of RRC connection including after EPS/RAT fallback is performed, the eNB or NG-RAN node may provide to the UE dedicated idle mode priorities for NR as defined in TS 36.331 [51] taking into account RFSP, PLMNs contained in Handover Restriction List and local operator policy. If the UE remains ECM/CM-CONNECTED after the voice call has ended, the eNB or NG-RAN node may trigger handover to NR connected to 5GC, if configured to do so, taking into account local operator policy and Handover Restriction List.
+[TS 23.501 | Rel-18 | §5.15.17 | Partial Network Slice support in a Registration Area]
+- The UE is considered registered with an S-NSSAI of the Partially Allowed NSSAI in the whole Registration Area. The UE does not trigger registration when moving between the TAs of support and non-support for the S-NSSAI within the RA.
+- The UE is allowed to initiate PDU Session establishment for the S-NSSAI only when the UE is in a TA where the S-NSSAI is supported. If the UE has overlapping areas between non-allowed area, area where the S-NSSAI is supported, then the non-allowed area restriction applies.
+- If the AMF determines a PDU Session is associated with S-NSSAI present in the Partially Allowed NSSAI, the AMF indicates to the SMF that the PDU Session is subject to area restrictions for the S-NSSAI. As a result, the SMF subscribes to "UE mobility event notification" event for reporting UE presence in Area of Interest by providing S-NSSAI to the AMF as described in clauses 5.6.11 and 5.3.4.4 if this event has not been subscribed before. The supporting AMF shall provide this indication in all the subsequent PDU Session update message to the SMF as long as the S-NSSAI of the PDU Session is subject to area restriction. When the AMF does not indicate to the SMF that the PDU Session is subject to area restriction for the S-NSSAI, the SMF may unsubscribe "UE mobility event notification" event in the AMF if this event has been subscribed before.
 ```
 
-## 10. `24501_D.2.1.3_001`
+## 10. `24501_9.11.4.8_007`
 
 - spec: TS 24.501 (Rel-18, V18.14.0)
-- section: §D.2.1.3  title: Network-requested UE policy management procedure accepted by the UE
-- section_path: D > D.2 > D.2.1 > D.2.1.3
+- section: §9.11.4.8  title: Mapped EPS bearer contexts
+- section_path: 9 > 9.11 > 9.11.4 > 9.11.4.8
 - merged_sections: -
-- type: text  part: 1  tokens: 168
+- type: text  part: 7  tokens: 205
 
 ```text
-[TS 24.501 | Rel-18 | §D.2.1.3 | Network-requested UE policy management procedure accepted by the UE]
-If all instructions included in the UE policy section management list IE were executed successfully by the UE, the UE shall:
-a) create a MANAGE UE POLICY COMPLETE message including the PTI value received within the MANAGE UE POLICY COMMAND message; and
-b) transport the MANAGE UE POLICY COMPLETE message using the NAS transport procedure as specified in clause 5.4.5.
-Upon receipt of the MANAGE UE POLICY COMPLETE message, the PCF shall stop timer T3501. The PCF should ensure that the PTI value assigned to this procedure is not released immediately.
-NOTE: The way to achieve this is implementation dependent. For example, the PCF can ensure that the PTI value assigned to this procedure is not released during the time equal to or greater than the default value of timer T3501.
+[TS 24.501 | Rel-18 | §9.11.4.8 | Mapped EPS bearer contexts]
+Table 9.11.4.8.1: Mapped EPS bearer contexts information element (continued)
+When the parameter identifier indicates mapped extended EPS QoS parameters, the length and parameter contents field are coded as specified in clause 9.9.4.30 of 3GPP TS 24.301 [15].
+When the parameter identifier indicates traffic flow template, the length and parameter contents field are coded from octet 2 as shown figure 10.5.144 and table 10.5.162 of 3GPP TS 24.008 [12].
+When the parameter identifier indicates APN-AMBR, the length and parameter contents field are coded as specified in clause 9.9.4.2 of 3GPP TS 24.301 [15].
+When the parameter identifier indicates Extended APN-AMBR, the length and parameter contents field are coded as specified in clause 9.9.4.29 of 3GPP TS 24.301 [15].
 ```

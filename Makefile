@@ -23,7 +23,8 @@ ingest:
 	$(PY) scripts/inspect_chunks.py
 
 index:
-	@echo Not implemented yet - steps 5-6.
+	$(PY) -m src.index.vector_store build
+	$(PY) -m src.index.bm25_index build
 
 app:
 	@echo Not implemented yet - step 11.

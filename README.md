@@ -13,7 +13,7 @@ the corpus, the answer is exactly: `I could not find this information in the doc
 
 ## Status
 
-Work in progress. See `PROGRESS.md`.
+Work in progress.
 
 ## Quick start
 

@@ -24,18 +24,27 @@ chunking:
   max_tokens: 450
   overlap_tokens: 60
   min_tokens: 40
-  max_table_tokens: 800
-  tokenizer: "cl100k_base"
+  max_table_tokens: 480
+  # Token counts use the embedding model tokenizer, so limits are exact for the embedder.
+  tokenizer: "BAAI/bge-base-en-v1.5"
+  # Hard cap on header + text + special tokens = embedding window: no chunk is ever truncated.
+  max_index_tokens: 512
 embeddings:
   model: "BAAI/bge-base-en-v1.5"
   query_instruction: "Represent this sentence for searching relevant passages: "
   normalize: true
-  batch_size: 32
+  batch_size: 8
+  max_seq_length: 512
+  device: "auto"          # auto | cpu | cuda
 vector_store:
   path: "data/indexes/chroma"
   collection: "specs_rel18"
+  distance: "cosine"
 bm25:
   path: "data/indexes/bm25.pkl"
+  stem: true              # light plural stemming of plain English words (never identifiers)
+  k1: 1.5
+  b: 0.75
 retrieval:
   dense_k: 30
   bm25_k: 30

@@ -180,3 +180,49 @@ def test_real_known_chunks(real_chunks: list[dict]) -> None:
     assert ("TS 23.501", "6.2.1") in by_section
     cause9 = [c for c in real_chunks if c["spec"] == "TS 24.501" and c["section"] == "A.1"]
     assert any("Cause #9" in c["text"] for c in cause9)
+
+
+def test_long_multicell_row_becomes_labelled_record(chunker: Chunker) -> None:
+    long_cell = "<br>".join(f"Expiry action {i}: retransmit the message and restart the timer." for i in range(30))
+    rows = [
+        "| TIMER NUM. | TIMER VALUE | ON EXPIRY |",
+        "|---|---|---|",
+        "| T3510 | 15s | Abort procedure. |",
+        f"| T3520 | 15s | {long_cell} |",
+    ]
+    block = Block("table", "\n".join(rows), caption="Table 10.2.1: Timers")
+    chunks = chunker.chunk_sections([sec("10.2", "Timers", [block])], SPEC)
+    records = [c for c in chunks if "(row T3520)" in c.text]
+    assert len(records) > 1
+    for c in records:
+        assert c.text.startswith("Table 10.2.1: Timers (row T3520)")
+        assert c.n_tokens <= MAX
+    joined = " ".join(c.text for c in records)
+    assert "TIMER VALUE: 15s" in joined and "ON EXPIRY: Expiry action 0" in joined
+    assert "Expiry action 29" in joined
+    # the short row stays a normal table row
+    assert any("| T3510 | 15s | Abort procedure. |" in c.text for c in chunks)
+
+
+def test_max_index_tokens_caps_header_plus_text() -> None:
+    capped = Chunker(max_tokens=200, overlap_tokens=10, min_tokens=5, max_table_tokens=200, max_index_tokens=80)
+    title = "A very long section title " * 4
+    chunks = capped.chunk_sections([sec("5.9", title, long_paragraphs(10, words=8))], SPEC)
+    assert len(chunks) > 1
+    assert all(capped.index_tokens(c.text_for_index) <= 80 for c in chunks)
+
+
+def test_real_chunks_fit_embedding_window(real_chunks: list[dict]) -> None:
+    """No chunk is truncated by the embedding model (exact count with its tokenizer)."""
+    from src.ingest.chunker import TokenCounter
+
+    cfg = load_config()["chunking"]
+    if not cfg.get("max_index_tokens"):
+        pytest.skip("max_index_tokens not configured")
+    tok = TokenCounter(cfg["tokenizer"])
+    too_long = [
+        c["chunk_id"]
+        for c in real_chunks
+        if tok.count(c["text_for_index"]) + tok.special_tokens > cfg["max_index_tokens"]
+    ]
+    assert too_long == []
