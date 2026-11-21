@@ -16,7 +16,7 @@ install:
 	$(PY) -m pip install -r requirements.txt
 
 download:
-	@echo Not implemented yet - step 2.
+	$(PY) -m src.ingest.download
 
 ingest:
 	@echo Not implemented yet - steps 3-4.
