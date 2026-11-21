@@ -80,13 +80,18 @@ def normalise_spec(number: str) -> str:
     return f"TS {number}"
 
 
-def extract_citations(text: str) -> list[Citation]:
-    """Return unique citations in order of appearance."""
-    found: list[Citation] = []
+def citation_spans(text: str) -> list[tuple[int, int, list[Citation]]]:
+    """``(start, end, citations)`` for every citation match in ``text`` (used to highlight them)."""
+    spans = []
     for m in CITATION_RE.finditer(text):
         spec = normalise_spec(m.group(1))
-        for sec in SECTION_RE.findall(m.group("list")):
-            found.append(Citation(spec, sec))
+        spans.append((m.start(), m.end(), [Citation(spec, sec) for sec in SECTION_RE.findall(m.group("list"))]))
+    return spans
+
+
+def extract_citations(text: str) -> list[Citation]:
+    """Return unique citations in order of appearance."""
+    found = [c for _, _, cits in citation_spans(text) for c in cits]
     return list(dict.fromkeys(found))
 
 

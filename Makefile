@@ -28,7 +28,7 @@ index:
 	$(PY) -m src.index.bm25_index build
 
 app:
-	@echo Not implemented yet - step 11.
+	$(PY) -m streamlit run src/app/streamlit_app.py --server.fileWatcherType none --browser.gatherUsageStats false
 
 eval-retrieval:
 	@echo Not implemented yet - step 13.

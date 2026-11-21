@@ -80,11 +80,24 @@ class LLM:
     # ------------------------------------------------------------------ public API
 
     def check(self) -> None:
-        """Raise :class:`LLMUnavailable` if the provider obviously cannot be used (no network call)."""
+        """Raise :class:`LLMUnavailable` if the provider obviously cannot be used.
+
+        API providers: the key must be set (no network call). Ollama: the local server must answer.
+        """
         if self.provider in API_KEY_ENV and not get_api_key(self.provider):
             raise LLMUnavailable(
                 f"{API_KEY_ENV[self.provider]} is not set. Add it to the .env file (see .env.example)."
             )
+        if self.provider == "ollama":
+            import requests
+
+            host = ollama_host()
+            try:
+                requests.get(f"{host}/api/tags", timeout=2).raise_for_status()
+            except requests.RequestException as exc:
+                raise LLMUnavailable(
+                    f"the Ollama server at {host} is not running. Start Ollama, then `ollama pull {self.model}`."
+                ) from exc
 
     def generate(self, messages: Messages, temperature: float | None = None, max_tokens: int | None = None) -> str:
         """Return the model's reply. Retries with exponential backoff on transient errors."""
@@ -164,19 +177,29 @@ class LLM:
         return resp.text or ""
 
     def _call_ollama(self, messages: Messages, temperature: float, max_tokens: int) -> str:
-        if self._client is None:
-            import ollama
+        import ollama
 
-            self._client = ollama.Client(host=os.getenv("OLLAMA_HOST", "http://localhost:11434"))
+        if self._client is None:
+            self._client = ollama.Client(host=ollama_host())
         try:
             resp = self._client.chat(
                 model=self.model,
                 messages=messages,
                 options={"temperature": temperature, "num_predict": max_tokens, "seed": self.seed or 0},
             )
-        except ConnectionError as exc:
-            raise LLMUnavailable(f"Ollama server not reachable: {exc}") from exc
+        except ollama.ResponseError as exc:
+            if exc.status_code == 404:  # model not pulled
+                raise LLMUnavailable(f"Ollama model {self.model!r} is not installed: `ollama pull {self.model}`") from exc
+            raise
+        except Exception as exc:
+            if "connect" in type(exc).__name__.lower() or isinstance(exc, ConnectionError):
+                raise LLMUnavailable(f"Ollama server not reachable at {ollama_host()}: {exc}") from exc
+            raise
         return resp["message"]["content"] or ""
+
+
+def ollama_host() -> str:
+    return os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
 
 
 def is_reasoning_model(model: str) -> bool:

@@ -184,3 +184,14 @@ def test_model_reference_marks_are_removed() -> None:
 
     raw = "Cause #9 means X (TS 24.501, §A.1)【1†L7-L12】. Then Y (TS 24.501, §5.6.1.5)【2†L13-L16】【6†L1】."
     assert clean_answer(raw) == "Cause #9 means X (TS 24.501, §A.1). Then Y (TS 24.501, §5.6.1.5)."
+
+
+def test_ollama_unreachable_is_unavailable(monkeypatch) -> None:
+    import requests
+
+    def refuse(*args, **kwargs):
+        raise requests.ConnectionError("refused")
+
+    monkeypatch.setattr(requests, "get", refuse)
+    with pytest.raises(LLMUnavailable, match="not running"):
+        LLM("ollama", "llama3.1:8b").check()
