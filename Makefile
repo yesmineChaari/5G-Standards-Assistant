@@ -21,6 +21,7 @@ download:
 ingest:
 	$(PY) -m src.ingest.chunker
 	$(PY) scripts/inspect_chunks.py
+	$(PY) -m src.retrieve.acronyms build
 
 index:
 	$(PY) -m src.index.vector_store build

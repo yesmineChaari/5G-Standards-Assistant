@@ -1,0 +1,956 @@
+{
+ "(R)AN": [
+  "(Radio) Access Network"
+ ],
+ "4G-GUTI": [
+  "4G-Globally Unique Temporary Identifier"
+ ],
+ "5G DDNMF": [
+  "5G Direct Discovery Name Management Function"
+ ],
+ "5G GM": [
+  "5G Grand Master"
+ ],
+ "5G LAN": [
+  "5G Local Area Network"
+ ],
+ "5G NSWO": [
+  "5G Non-Seamless WLAN offload"
+ ],
+ "5G VN": [
+  "5G Virtual Network"
+ ],
+ "5G-AN": [
+  "5G Access Network"
+ ],
+ "5G-AN PDB": [
+  "5G Access Network Packet Delay Budget"
+ ],
+ "5G-BRG": [
+  "5G Broadband Residential Gateway"
+ ],
+ "5G-CRG": [
+  "5G Cable Residential Gateway"
+ ],
+ "5G-EIR": [
+  "5G-Equipment Identity Register"
+ ],
+ "5G-GUTI": [
+  "5G Globally Unique Temporary Identifier"
+ ],
+ "5G-RG": [
+  "5G Residential Gateway"
+ ],
+ "5G-S-TMSI": [
+  "5G S-Temporary Mobile Subscription Identifier"
+ ],
+ "5G-TMSI": [
+  "5G Temporary Mobile Subscription Identifier"
+ ],
+ "5GC": [
+  "5G Core Network"
+ ],
+ "5GCN": [
+  "5G Core Network"
+ ],
+ "5GMM": [
+  "5GS Mobility Management"
+ ],
+ "5GS": [
+  "5G System"
+ ],
+ "5GSM": [
+  "5GS Session Management"
+ ],
+ "5QI": [
+  "5G QoS Identifier"
+ ],
+ "A-KID": [
+  "AKMA Key Identifier"
+ ],
+ "A-TID": [
+  "AKMA Temporary Identifier"
+ ],
+ "ABBA": [
+  "Anti-Bidding down Between Architectures"
+ ],
+ "ACS": [
+  "Auto-Configuration Server"
+ ],
+ "ADRF": [
+  "Analytics Data Repository Function"
+ ],
+ "AF": [
+  "Application Function"
+ ],
+ "AI/ML": [
+  "Artificial Intelligence/Machine Learning"
+ ],
+ "AKA": [
+  "Authentication and Key Agreement"
+ ],
+ "AKMA": [
+  "Authentication and Key Management for Applications"
+ ],
+ "AMBR": [
+  "Aggregate Maximum Bit Rate"
+ ],
+ "AMF": [
+  "Access and Mobility Management Function"
+ ],
+ "ANDSP": [
+  "Access Network Discovery and Selection Policy"
+ ],
+ "APN": [
+  "Access Point Name"
+ ],
+ "AS": [
+  "Access Stratum"
+ ],
+ "ATSSS": [
+  "Access Traffic Steering, Switching, Splitting",
+  "Access Traffic Steering, Switching and Splitting"
+ ],
+ "ATSSS-LL": [
+  "ATSSS Low-Layer"
+ ],
+ "AUN3": [
+  "Authenticable Non-3GPP"
+ ],
+ "AUSF": [
+  "Authentication Server Function"
+ ],
+ "AVC": [
+  "Advanced Video Coding"
+ ],
+ "AnLF": [
+  "Analytics Logical Function"
+ ],
+ "AoI": [
+  "Area of Interest"
+ ],
+ "BMCA": [
+  "Best Master Clock Algorithm"
+ ],
+ "BSF": [
+  "Binding Support Function"
+ ],
+ "CAG": [
+  "Closed Access Group"
+ ],
+ "CAPIF": [
+  "Common API Framework for 3GPP northbound APIs"
+ ],
+ "CGI": [
+  "Cell Global Identity"
+ ],
+ "CH": [
+  "Credentials Holder"
+ ],
+ "CHAP": [
+  "Challenge Handshake Authentication Protocol"
+ ],
+ "CHF": [
+  "Charging Function"
+ ],
+ "CN PDB": [
+  "Core Network Packet Delay Budget"
+ ],
+ "CP": [
+  "Control Plane"
+ ],
+ "CQRCI": [
+  "Clock Quality Reporting Control Information"
+ ],
+ "DAPS": [
+  "Dual Active Protocol Stacks"
+ ],
+ "DCCF": [
+  "Data Collection Coordination Function"
+ ],
+ "DCS": [
+  "Default Credentials Server"
+ ],
+ "DDX": [
+  "Downlink Data Expected"
+ ],
+ "DEI": [
+  "Drop Eligible Indicator"
+ ],
+ "DL": [
+  "Downlink"
+ ],
+ "DN": [
+  "Data Network"
+ ],
+ "DNAI": [
+  "DN Access Identifier"
+ ],
+ "DNN": [
+  "Data Network Name"
+ ],
+ "DNS": [
+  "Domain Name System"
+ ],
+ "DRX": [
+  "Discontinuous Reception"
+ ],
+ "DS-TT": [
+  "Device-side TSN translator"
+ ],
+ "DetNet": [
+  "Deterministic Networking"
+ ],
+ "E-UTRAN": [
+  "Evolved Universal Terrestrial Radio Access Network"
+ ],
+ "EAC": [
+  "Early Admission Control"
+ ],
+ "EAP-AKA'": [
+  "Improved Extensible Authentication Protocol method for 3rd generation Authentication and Key Agreement"
+ ],
+ "EAS": [
+  "Edge Application Server"
+ ],
+ "EASDF": [
+  "Edge Application Server Discovery Function"
+ ],
+ "EBI": [
+  "EPS Bearer Identity"
+ ],
+ "ECIES": [
+  "Elliptic Curve Integrated Encryption Scheme"
+ ],
+ "ECS": [
+  "Edge Configuration Server"
+ ],
+ "ECSP": [
+  "Edge Computing Service Provider"
+ ],
+ "EDC": [
+  "Edge DNS Client"
+ ],
+ "EEC": [
+  "Edge Enabler Client"
+ ],
+ "EMM": [
+  "EPS Mobility Management"
+ ],
+ "EPC": [
+  "Evolved Packet Core Network"
+ ],
+ "EPD": [
+  "Extended Protocol Discriminator"
+ ],
+ "EPS": [
+  "Evolved Packet System"
+ ],
+ "EPS-UPIP": [
+  "User-plane integrity protection in EPS"
+ ],
+ "ESM": [
+  "EPS Session Management"
+ ],
+ "EUI": [
+  "Extended Unique Identifier"
+ ],
+ "FAR": [
+  "Forwarding Action Rule"
+ ],
+ "FL": [
+  "Federated Learning"
+ ],
+ "FN-BRG": [
+  "Fixed Network Broadband RG"
+ ],
+ "FN-CRG": [
+  "Fixed Network Cable RG"
+ ],
+ "FN-RG": [
+  "Fixed Network RG"
+ ],
+ "FQDN": [
+  "Fully Qualified Domain Name"
+ ],
+ "GBA": [
+  "Generic Bootstrapping Architecture"
+ ],
+ "GEO": [
+  "Geostationary Orbit"
+ ],
+ "GFBR": [
+  "Guaranteed Flow Bit Rate"
+ ],
+ "GIN": [
+  "Group ID for Network Selection"
+ ],
+ "GMLC": [
+  "Gateway Mobile Location Centre"
+ ],
+ "GPSI": [
+  "Generic Public Subscription Identifier"
+ ],
+ "GUAMI": [
+  "Globally Unique AMF Identifier"
+ ],
+ "Gbps": [
+  "Gigabits per second"
+ ],
+ "HEVC": [
+  "High Efficiency Video Coding"
+ ],
+ "HMTC": [
+  "High-Performance Machine-Type Communications"
+ ],
+ "HR": [
+  "Home Routed (roaming)"
+ ],
+ "I-SMF": [
+  "Intermediate SMF"
+ ],
+ "I-UPF": [
+  "Intermediate UPF"
+ ],
+ "IAB": [
+  "Integrated access and backhaul"
+ ],
+ "IMEI": [
+  "International Mobile station Equipment Identity"
+ ],
+ "IMEI/TAC": [
+  "IMEI Type Allocation Code"
+ ],
+ "IMEISV": [
+  "International Mobile station Equipment Identity and Software Version number"
+ ],
+ "IMSI": [
+  "International Mobile Subscriber Identity"
+ ],
+ "IP-CAN": [
+  "IP-Connectivity Access Network"
+ ],
+ "IPUPS": [
+  "Inter PLMN UP Security"
+ ],
+ "KSI": [
+  "Key Set Identifier"
+ ],
+ "L4S": [
+  "Low Latency, Low Loss and Scalable Throughput"
+ ],
+ "LADN": [
+  "Local Area Data Network"
+ ],
+ "LBO": [
+  "Local Break Out (roaming)"
+ ],
+ "LCS": [
+  "LoCation Services"
+ ],
+ "LCS-UPP": [
+  "Location Services User Plane Protocol"
+ ],
+ "LEO": [
+  "Low Earth Orbit"
+ ],
+ "LMF": [
+  "Location Management Function"
+ ],
+ "LPP": [
+  "LTE Positioning Protocol"
+ ],
+ "LRF": [
+  "Location Retrieval Function"
+ ],
+ "LoA": [
+  "Level of Automation"
+ ],
+ "MA PDU": [
+  "Multi-Access PDU"
+ ],
+ "MAC": [
+  "Message Authentication Code"
+ ],
+ "MB-SMF": [
+  "Multicast/Broadcast Session Management Function"
+ ],
+ "MB-UPF": [
+  "Multicast/Broadcast User Plane Function"
+ ],
+ "MBS": [
+  "Multicast/Broadcast Service"
+ ],
+ "MBSF": [
+  "Multicast/Broadcast Service Function"
+ ],
+ "MBSR": [
+  "Mobile Base Station Relay"
+ ],
+ "MBSTF": [
+  "Multicast/Broadcast Service Transport Function"
+ ],
+ "MCS": [
+  "Mission Critical Service"
+ ],
+ "MCX": [
+  "Mission Critical Service"
+ ],
+ "MDBV": [
+  "Maximum Data Burst Volume"
+ ],
+ "MEO": [
+  "Medium Earth Orbit"
+ ],
+ "MFAF": [
+  "Messaging Framework Adaptor Function"
+ ],
+ "MFBR": [
+  "Maximum Flow Bit Rate"
+ ],
+ "MICO": [
+  "Mobile Initiated Connection Only"
+ ],
+ "MINT": [
+  "Minimization of Service Interruption"
+ ],
+ "ML": [
+  "Machine Learning"
+ ],
+ "MPQUIC": [
+  "Multi-Path QUIC"
+ ],
+ "MPS": [
+  "Multimedia Priority Service"
+ ],
+ "MPTCP": [
+  "Multi-Path TCP Protocol"
+ ],
+ "MSK": [
+  "MBS Service Key"
+ ],
+ "MTK": [
+  "MBS Traffic Key"
+ ],
+ "MTLF": [
+  "Model Training Logical Function"
+ ],
+ "MUSIM": [
+  "Multi-USIM"
+ ],
+ "Mbps": [
+  "Megabits per second"
+ ],
+ "N3IWF": [
+  "Non-3GPP InterWorking Function"
+ ],
+ "N3QAI": [
+  "Non-3GPP QoS Assistance Information"
+ ],
+ "N5CW": [
+  "Non-5G-Capable over WLAN"
+ ],
+ "N5GC": [
+  "Non-5G Capable"
+ ],
+ "NAI": [
+  "Network Access Identifier"
+ ],
+ "NAUN3": [
+  "Non-Authenticable Non-3GPP"
+ ],
+ "NCR": [
+  "Network Controlled Repeater"
+ ],
+ "NCR-MT": [
+  "NCR Mobile Termination"
+ ],
+ "NEF": [
+  "Network Exposure Function"
+ ],
+ "NF": [
+  "Network Function"
+ ],
+ "NGAP": [
+  "Next Generation Application Protocol"
+ ],
+ "NID": [
+  "Network identifier"
+ ],
+ "NITZ": [
+  "Network Identity and Time Zone"
+ ],
+ "NPN": [
+  "Non-Public Network"
+ ],
+ "NR": [
+  "New Radio"
+ ],
+ "NRF": [
+  "Network Repository Function"
+ ],
+ "NS-AoS": [
+  "Network Slice Area of Service"
+ ],
+ "NSAC": [
+  "Network Slice Admission Control"
+ ],
+ "NSACF": [
+  "Network Slice Admission Control Function"
+ ],
+ "NSAG": [
+  "Network Slice AS Group"
+ ],
+ "NSI ID": [
+  "Network Slice Instance Identifier"
+ ],
+ "NSSAA": [
+  "Network Slice-Specific Authentication and Authorization"
+ ],
+ "NSSAAF": [
+  "Network Slice-specific and SNPN Authentication and Authorization Function"
+ ],
+ "NSSAI": [
+  "Network Slice Selection Assistance Information"
+ ],
+ "NSSF": [
+  "Network Slice Selection Function"
+ ],
+ "NSSP": [
+  "Network Slice Selection Policy"
+ ],
+ "NSSRG": [
+  "Network Slice Simultaneous Registration Group"
+ ],
+ "NSWO": [
+  "Non-Seamless WLAN offload"
+ ],
+ "NSWOF": [
+  "Non-Seamless WLAN offload Function"
+ ],
+ "NW-TT": [
+  "Network-side TSN translator"
+ ],
+ "NWDAF": [
+  "Network Data Analytics Function"
+ ],
+ "ON-SNPN": [
+  "Onboarding Standalone Non-Public Network"
+ ],
+ "ONN": [
+  "Onboarding Network"
+ ],
+ "OS": [
+  "Operating System"
+ ],
+ "OS Id": [
+  "OS Identity"
+ ],
+ "PAP": [
+  "Password Authentication Protocol"
+ ],
+ "PCF": [
+  "Policy Control Function"
+ ],
+ "PCO": [
+  "Protocol Configuration Option"
+ ],
+ "PCP": [
+  "Priority Code Point"
+ ],
+ "PDB": [
+  "Packet Delay Budget"
+ ],
+ "PDR": [
+  "Packet Detection Rule"
+ ],
+ "PDU": [
+  "Protocol Data Unit"
+ ],
+ "PDV": [
+  "Packet Delay Variation"
+ ],
+ "PEGC": [
+  "PIN Element with Gateway Capability"
+ ],
+ "PEI": [
+  "Permanent Equipment Identifier"
+ ],
+ "PEIPS": [
+  "Paging Early Indication with Paging Subgrouping"
+ ],
+ "PEMC": [
+  "PIN Element with Management Capability"
+ ],
+ "PER": [
+  "Packet Error Rate"
+ ],
+ "PFD": [
+  "Packet Flow Description"
+ ],
+ "PG": [
+  "PLMN Generic"
+ ],
+ "PIN": [
+  "Personal IoT Network"
+ ],
+ "PINE": [
+  "PIN Element"
+ ],
+ "PLR": [
+  "Packet Loss Rate"
+ ],
+ "PMF": [
+  "Performance Measurement Function"
+ ],
+ "PNI-NPN": [
+  "Public Network Integrated Non-Public Network"
+ ],
+ "PPD": [
+  "Paging Policy Differentiation"
+ ],
+ "PPF": [
+  "Paging Proceed Flag"
+ ],
+ "PPI": [
+  "Paging Policy Indicator"
+ ],
+ "PSA": [
+  "PDU Session Anchor"
+ ],
+ "PSDB": [
+  "PDU Set Delay Budget"
+ ],
+ "PSER": [
+  "PDU Set Error Rate"
+ ],
+ "PSIHI": [
+  "PDU Set Integrated Handling Information"
+ ],
+ "PTI": [
+  "Procedure Transaction Identity"
+ ],
+ "PTP": [
+  "Precision Time Protocol"
+ ],
+ "PVS": [
+  "Provisioning Server"
+ ],
+ "ProSe": [
+  "Proximity based Services"
+ ],
+ "ProSeP": [
+  "5G ProSe policy"
+ ],
+ "QFI": [
+  "QoS Flow Identifier"
+ ],
+ "QMC": [
+  "QoE Measurement Collection"
+ ],
+ "QRI": [
+  "QoS Rule Identifier"
+ ],
+ "QoE": [
+  "Quality of Experience"
+ ],
+ "QoS": [
+  "Quality of Service"
+ ],
+ "RACS": [
+  "Radio Capabilities Signalling optimisation",
+  "Radio Capability Signalling Optimisation"
+ ],
+ "RFSP": [
+  "RAT Frequency Selection Priority"
+ ],
+ "RG": [
+  "Residential Gateway"
+ ],
+ "RIM": [
+  "Remote Interference Management"
+ ],
+ "RPLMN": [
+  "Registered PLMN"
+ ],
+ "RQA": [
+  "Reflective QoS Attribute"
+ ],
+ "RQI": [
+  "Reflective QoS Indication"
+ ],
+ "RSC": [
+  "Relay Service Code"
+ ],
+ "RSN": [
+  "Redundancy Sequence Number"
+ ],
+ "RSNPN": [
+  "Registered SNPN"
+ ],
+ "RTT": [
+  "Round Trip Time"
+ ],
+ "S-NSSAI": [
+  "Single Network Slice Selection Assistance Information",
+  "Single NSSAI"
+ ],
+ "SA": [
+  "Security Association"
+ ],
+ "SA NR": [
+  "Standalone New Radio"
+ ],
+ "SBA": [
+  "Service Based Architecture"
+ ],
+ "SBI": [
+  "Service Based Interface"
+ ],
+ "SCP": [
+  "Service Communication Proxy"
+ ],
+ "SD": [
+  "Slice Differentiator"
+ ],
+ "SDF": [
+  "Service Data Flow"
+ ],
+ "SDNAEPC": [
+  "Secondary DN authentication and authorization over EPC"
+ ],
+ "SDT": [
+  "Small Data Transmission"
+ ],
+ "SEAF": [
+  "Security Anchor Functionality"
+ ],
+ "SEPP": [
+  "Security Edge Protection Proxy"
+ ],
+ "SF": [
+  "Service Function"
+ ],
+ "SFC": [
+  "Service Function Chain"
+ ],
+ "SGC": [
+  "Service Gap Control"
+ ],
+ "SLPP": [
+  "SideLink Positioning Protocol"
+ ],
+ "SMF": [
+  "Session Management Function"
+ ],
+ "SMSF": [
+  "Short Message Service Function"
+ ],
+ "SN": [
+  "Sequence Number"
+ ],
+ "SNN": [
+  "Serving Network Name"
+ ],
+ "SNPN": [
+  "Stand-alone Non-Public Network"
+ ],
+ "SO-SNPN": [
+  "Subscription Owner Standalone Non-Public Network"
+ ],
+ "SOR": [
+  "Steering of Roaming"
+ ],
+ "SOR-CMCI": [
+  "Steering of Roaming Connected Mode Control Information"
+ ],
+ "SRTP": [
+  "Secure Real-time Transport Protocol"
+ ],
+ "SSC": [
+  "Session and Service Continuity"
+ ],
+ "SSCMSP": [
+  "Session and Service Continuity Mode Selection Policy"
+ ],
+ "SST": [
+  "Slice/Service Type"
+ ],
+ "SUCI": [
+  "Subscription Concealed Identifier"
+ ],
+ "SUPI": [
+  "Subscription Permanent Identifier"
+ ],
+ "SV": [
+  "Software Version"
+ ],
+ "TA": [
+  "Tracking Area"
+ ],
+ "TAC": [
+  "Tracking Area Code"
+ ],
+ "TAI": [
+  "Tracking Area Identity"
+ ],
+ "TMGI": [
+  "Temporary Mobile Group Identity"
+ ],
+ "TNAN": [
+  "Trusted Non-3GPP Access Network"
+ ],
+ "TNAP": [
+  "Trusted Non-3GPP Access Point"
+ ],
+ "TNGF": [
+  "Trusted Non-3GPP Gateway Function"
+ ],
+ "TNL": [
+  "Transport Network Layer"
+ ],
+ "TNLA": [
+  "Transport Network Layer Association"
+ ],
+ "TSC": [
+  "Time Sensitive Communication"
+ ],
+ "TSCAC": [
+  "TSC Assistance Container"
+ ],
+ "TSCAI": [
+  "Traffic Assistance Information"
+ ],
+ "TSCTSF": [
+  "Time Sensitive Communication and Time Synchronization Function"
+ ],
+ "TSN": [
+  "Time Sensitive Networking"
+ ],
+ "TSN GM": [
+  "TSN Grand Master"
+ ],
+ "TSP": [
+  "Traffic Steering Policy"
+ ],
+ "TSS": [
+  "Timing Synchronization Status"
+ ],
+ "TT": [
+  "TSN Translator"
+ ],
+ "TWIF": [
+  "Trusted WLAN Interworking Function"
+ ],
+ "Tbps": [
+  "Terabits per second"
+ ],
+ "UAS": [
+  "Uncrewed Aerial System"
+ ],
+ "UAS NF": [
+  "Uncrewed Aerial System Network Function"
+ ],
+ "UAV": [
+  "Uncrewed Aerial Vehicle"
+ ],
+ "UAV-C": [
+  "Uncrewed Aerial Vehicle-Controller"
+ ],
+ "UCMF": [
+  "UE radio Capability Management Function"
+ ],
+ "UDM": [
+  "Unified Data Management"
+ ],
+ "UDR": [
+  "Unified Data Repository"
+ ],
+ "UDSF": [
+  "Unstructured Data Storage Function"
+ ],
+ "UL": [
+  "Uplink"
+ ],
+ "UL CL": [
+  "Uplink Classifier"
+ ],
+ "UP-PRUK": [
+  "User Plane ProSe Remote User Key"
+ ],
+ "UPDS": [
+  "UE policy delivery service"
+ ],
+ "UPF": [
+  "User Plane Function"
+ ],
+ "UPP-CMI": [
+  "User Plane Positioning Connection Management Information"
+ ],
+ "UPSC": [
+  "UE Policy Section Code"
+ ],
+ "UPSI": [
+  "UE Policy Section Identifier"
+ ],
+ "URLLC": [
+  "Ultra Reliable Low Latency Communication"
+ ],
+ "URN": [
+  "Uniform Resource Name"
+ ],
+ "URRP-AMF": [
+  "UE Reachability Request Parameter for AMF"
+ ],
+ "URSP": [
+  "UE Route Selection Policy"
+ ],
+ "USS": [
+  "UAS Service Supplier"
+ ],
+ "UUAA": [
+  "USS UAV Authorization/Authentication"
+ ],
+ "V2X": [
+  "Vehicle-to-Everything"
+ ],
+ "V2XP": [
+  "V2X policy"
+ ],
+ "VID": [
+  "VLAN Identifier"
+ ],
+ "VLAN": [
+  "Virtual Local Area Network"
+ ],
+ "VPS": [
+  "VPLMN Specific"
+ ],
+ "W-5GAN": [
+  "Wireline 5G Access Network"
+ ],
+ "W-5GBAN": [
+  "Wireline BBF Access Network"
+ ],
+ "W-5GCAN": [
+  "Wireline 5G Cable Access Network"
+ ],
+ "W-AGF": [
+  "Wireline Access Gateway Function"
+ ],
+ "WLAN": [
+  "Wireless Local Area Network"
+ ],
+ "WUS": [
+  "Wake-up signal"
+ ],
+ "eDRX": [
+  "Extended DRX cycle"
+ ],
+ "ePDG": [
+  "evolved Packet Data Gateway"
+ ],
+ "ngKSI": [
+  "Key Set Identifier for Next Generation Radio Access Network"
+ ]
+}

@@ -95,3 +95,17 @@ def test_reranker_sorts_by_score(monkeypatch) -> None:
 def test_reranker_uses_fallback_on_cpu() -> None:
     r = Reranker("big-model", fallback_model="small-model", use_fallback_on_cpu=True, device="cpu")
     assert r.model_name == "small-model"
+
+
+def test_balance_by_spec_interleaves_reranked_results() -> None:
+    from src.retrieve.pipeline import balance_by_spec
+
+    def c(cid: str, spec: str, score: float) -> Candidate:
+        cand = Candidate(cid, {"chunk_id": cid, "spec": spec})
+        cand.rerank_score = score
+        return cand
+
+    ranked = [c("n1", "TS 24.501", 0.99), c("n2", "TS 24.501", 0.98), c("n3", "TS 24.501", 0.97),
+              c("a1", "TS 23.501", 0.90), c("a2", "TS 23.501", 0.50)]
+    out = [x.chunk_id for x in balance_by_spec(ranked, ["TS 23.501", "TS 24.501"])]
+    assert out == ["n1", "a1", "n2", "a2", "n3"]  # best spec first, then alternate
