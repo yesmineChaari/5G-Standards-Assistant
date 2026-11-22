@@ -69,7 +69,8 @@ def from_metadata(meta: dict[str, Any], document: str | None = None) -> dict[str
 class VectorStore:
     """Chroma-backed dense index over the chunks."""
 
-    def __init__(self, path: str | Path, collection: str, embedder: Embedder, distance: str = "cosine") -> None:
+    def __init__(self, path: str | Path, collection: str, embedder: Embedder, distance: str = "cosine",
+                 exact_search: bool = True) -> None:
         import chromadb
         from chromadb.config import Settings
 
@@ -78,6 +79,10 @@ class VectorStore:
         self.collection_name = collection
         self.distance = distance
         self.embedder = embedder
+        # Exact search: cosine similarity against every stored vector (deterministic across runs).
+        # Chroma's HNSW index is approximate and its results can vary slightly between processes.
+        self.exact_search = exact_search
+        self._matrix: Any = None  # (ids, unit-norm embeddings, metadatas, documents), loaded once
         self.client = chromadb.PersistentClient(
             path=str(self.path), settings=Settings(anonymized_telemetry=False)
         )
@@ -91,6 +96,7 @@ class VectorStore:
             collection=vs["collection"],
             embedder=embedder or Embedder.from_config(cfg),
             distance=vs.get("distance", "cosine"),
+            exact_search=vs.get("exact_search", True),
         )
 
     # ------------------------------------------------------------------ build
@@ -182,6 +188,8 @@ class VectorStore:
             specs = list(specs)
             where = {"spec": specs[0]} if len(specs) == 1 else {"spec": {"$in": specs}}
         qvec = self.embedder.embed_query(query)
+        if self.exact_search:
+            return self._exact_query(qvec, k, specs)
         res = self.collection.query(
             query_embeddings=[qvec.tolist()],
             n_results=k,
@@ -195,6 +203,34 @@ class VectorStore:
             score = 1.0 - float(dist) if self.distance == "cosine" else -float(dist)
             hits.append(Hit(cid, score, rank, from_metadata(meta, doc)))
         return hits
+
+
+    def _load_matrix(self) -> Any:
+        if self._matrix is None:
+            import numpy as np
+
+            data = self.collection.get(include=["embeddings", "metadatas", "documents"])
+            emb = np.asarray(data["embeddings"], dtype=np.float32)
+            emb /= np.linalg.norm(emb, axis=1, keepdims=True).clip(min=1e-12)
+            order = np.argsort(np.asarray(data["ids"]), kind="stable")  # fixed order: chunk id
+            self._matrix = ([data["ids"][i] for i in order], emb[order],
+                            [data["metadatas"][i] for i in order], [data["documents"][i] for i in order])
+        return self._matrix
+
+    def _exact_query(self, qvec: Any, k: int, specs: Sequence[str] | None) -> list[Hit]:
+        import numpy as np
+
+        ids, emb, metas, docs = self._load_matrix()
+        q = np.asarray(qvec, dtype=np.float32)
+        q /= max(float(np.linalg.norm(q)), 1e-12)
+        scores = emb @ q
+        if specs:
+            allowed = set(specs)
+            mask = np.fromiter((m["spec"] in allowed for m in metas), dtype=bool, count=len(metas))
+            scores = np.where(mask, scores, -np.inf)
+        top = np.argsort(-scores, kind="stable")[:k]  # ties: chunk id order
+        return [Hit(ids[i], float(scores[i]), rank, from_metadata(metas[i], docs[i]))
+                for rank, i in enumerate(top, start=1) if np.isfinite(scores[i])]
 
 
 def build_index(cfg: dict[str, Any] | None = None, force: bool = False) -> VectorStore:

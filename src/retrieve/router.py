@@ -2,9 +2,15 @@
 
 1. Rule-based scoring with weighted keyword / regex signals for each spec, plus cross-spec
    signals (e.g. "procedure ... messages", "end-to-end", "both").
-2. Decision: cross-spec signal or strong signals for both specs -> both; otherwise the spec with
-   the higher score. On a tie (including no signal at all) an optional LLM classifier is asked
+2. Decision: a cross-spec signal, or signals for both specs (any score on each side) -> both;
+   otherwise the only spec with signals. With no signal at all an optional LLM classifier is asked
    (returns ``23501`` / ``24501`` / ``both``); if it is unavailable or fails, both specs are used.
+   Routing errs towards both specs: a missed spec loses recall that the reranker cannot recover,
+   while an extra spec only costs some precision.
+
+Spec-specific signals are terms that occur mostly in one spec, e.g. RM-/CM- states occur 65 and
+328 times in TS 23.501 and 0 and 5 times in TS 24.501 (5GMM-IDLE: 0 vs 280). Terms used heavily
+in both specs (MICO, periodic registration update, Requested NSSAI, PDU session) are not signals.
 3. The decision comes with a short human-readable reason (shown in the UI), e.g.
    ``Routed to: TS 24.501 (keywords: 5GMM, cause #)``.
 """
@@ -91,6 +97,8 @@ SIGNALS_23501: list[Signal] = [
     ("roaming", _ci(r"\broaming\b|\bhome[- ]routed\b|\bLBO\b"), 2.0),
     ("non-public network", _ci(r"\bnon-public networks?\b|\bNPN\b|\bSNPN\b"), 1.0),
     ("deployment", _ci(r"\bdeployments?\b"), 1.0),
+    ("RM / CM state", re.compile(r"\b(?:RM|CM)[- ](?:states?|REGISTERED|DEREGISTERED|IDLE|CONNECTED)\b"), 2.0),
+    ("reachability", _ci(r"\breachab(?:le|ility)\b"), 1.0),
 ]
 
 CROSS_SIGNALS: list[Signal] = [
@@ -102,11 +110,6 @@ CROSS_SIGNALS: list[Signal] = [
     ("exchanged between", _ci(r"\bexchanged between\b"), 3.0),
     ("architecture and signalling", _ci(r"\barchitecture\b.*\bsignall?ing\b|\bsignall?ing\b.*\barchitecture\b"), 3.0),
 ]
-
-# Minimum score on each side for "strong signals for both specs".
-STRONG_SCORE = 2.0
-# When both specs are strong, the weaker one must be at least this fraction of the stronger one.
-BALANCE_RATIO = 0.5
 
 
 @dataclass
@@ -176,14 +179,18 @@ class Router:
 
         if sx > 0:
             return decision(list(BOTH), f"cross-spec ({', '.join(mx)})")
-        if s23 >= STRONG_SCORE and s24 >= STRONG_SCORE and min(s23, s24) >= BALANCE_RATIO * max(s23, s24):
+        # A spec named explicitly ("In 24.501, ...") decides, unless both are named.
+        named = [spec for spec, m in ((SPEC_23501, m23), (SPEC_24501, m24)) if spec in m]
+        if len(named) == 1:
+            return decision(named, f"spec named in the question ({named[0]})")
+        if s23 > 0 and s24 > 0:
             return decision(list(BOTH), f"signals for both ({', '.join(m23 + m24)})")
-        if s23 > s24:
+        if s23 > 0:
             return decision([SPEC_23501], f"keywords: {', '.join(m23)}")
-        if s24 > s23:
+        if s24 > 0:
             return decision([SPEC_24501], f"keywords: {', '.join(m24)}")
 
-        # Tie (including no signal): ask the LLM if available, otherwise search both specs.
+        # No signal at all: ask the LLM if available, otherwise search both specs.
         if self.llm_classifier is not None:
             try:
                 answer = self.llm_classifier(ROUTER_PROMPT.format(question=query))
@@ -193,7 +200,7 @@ class Router:
                 logger.warning("Router: unparseable LLM answer %r", answer)
             except Exception as exc:  # LLM unavailable: fall back to both
                 logger.warning("Router: LLM classification failed (%s)", exc)
-        why = "no clear signal: both specs" if s23 == 0 else f"tie ({', '.join(m23 + m24)}): both specs"
+        why = "no clear signal: both specs"
         return decision(list(BOTH), why, "default")
 
 

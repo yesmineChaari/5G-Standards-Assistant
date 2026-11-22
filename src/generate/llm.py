@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import time
 from typing import Any, Callable
 
@@ -23,6 +24,10 @@ PROVIDERS = ("groq", "gemini", "openai", "ollama")
 
 class LLMUnavailable(RuntimeError):
     """Raised when a provider cannot be used (missing key, package or server)."""
+
+
+class RateLimitExhausted(RuntimeError):
+    """Raised when the provider asks to wait longer than ``max_rate_wait_s`` (e.g. a daily quota)."""
 
 
 class LLM:
@@ -52,6 +57,11 @@ class LLM:
         self.backoff_s = backoff_s
         self.reasoning_effort = reasoning_effort
         self.classify_max_tokens = classify_max_tokens
+        # 429 handling: wait as long as the provider asks (up to max_rate_wait_s, max_rate_waits times);
+        # a longer wait (daily limit) raises RateLimitExhausted.
+        self.max_rate_wait_s = 120.0
+        self.last_wait_s = 0.0
+        self.max_rate_waits = 30
         self._client: Any = None
         self._call: Callable[[Messages, float, int], str] = getattr(self, f"_call_{provider}")
 
@@ -105,12 +115,27 @@ class LLM:
         temperature = self.temperature if temperature is None else temperature
         max_tokens = max_tokens or self.max_tokens
         last_exc: Exception | None = None
-        for attempt in range(1, self.max_retries + 1):
+        attempt, rate_waits = 0, 0
+        self.last_wait_s = 0.0  # time spent waiting for rate limits in this call (excluded from latency)
+        while attempt < self.max_retries:
+            attempt += 1
             try:
                 return self._call(messages, temperature, max_tokens).strip()
             except LLMUnavailable:
                 raise
             except Exception as exc:
+                if _status(exc) == 429:
+                    wait = retry_after_seconds(exc)
+                    if wait is not None and wait > self.max_rate_wait_s:  # e.g. daily token limit
+                        raise RateLimitExhausted(f"{self.name}: rate limit, retry in {wait:.0f} s: {exc}") from exc
+                    if rate_waits < self.max_rate_waits:  # per-minute limit: wait as asked, do not count it
+                        rate_waits += 1
+                        attempt -= 1
+                        wait = (wait if wait is not None else self.backoff_s * 2 ** min(rate_waits, 5)) + 0.5
+                        logger.info("%s rate limited; waiting %.1f s", self.name, wait)
+                        time.sleep(wait)
+                        self.last_wait_s += wait
+                        continue
                 if not _is_transient(exc):  # wrong model name, bad key, bad request: retrying will not help
                     raise RuntimeError(f"{self.name} call failed: {exc}") from exc
                 last_exc = exc
@@ -208,12 +233,39 @@ def is_reasoning_model(model: str) -> bool:
     return name.startswith(("gpt-oss", "o1", "o3", "o4", "gpt-5", "qwen3", "deepseek-r1"))
 
 
+def _status(exc: Exception) -> int | None:
+    status = getattr(exc, "status_code", None) or getattr(getattr(exc, "response", None), "status_code", None)
+    return status if isinstance(status, int) else None
+
+
 def _is_transient(exc: Exception) -> bool:
     """Network errors, timeouts, rate limits (429) and server errors (5xx) are worth retrying."""
-    status = getattr(exc, "status_code", None) or getattr(getattr(exc, "response", None), "status_code", None)
-    if isinstance(status, int):
+    status = _status(exc)
+    if status is not None:
         return status == 429 or status >= 500
     return True
+
+
+_DURATION = re.compile(r"try again in\s+(?:(\d+)h)?\s*(?:(\d+)m(?!s))?\s*(?:([\d.]+)(ms|s))?", re.I)
+
+
+def retry_after_seconds(exc: Exception) -> float | None:
+    """Wait requested by a 429: ``retry-after`` header, else "Please try again in 1m2.5s" in the message."""
+    headers = getattr(getattr(exc, "response", None), "headers", None) or {}
+    value = headers.get("retry-after") if hasattr(headers, "get") else None
+    if value:
+        try:
+            return float(value)
+        except ValueError:
+            pass
+    m = _DURATION.search(str(exc))
+    if not m or not any(m.groups()[:3]):
+        return None
+    h, mnt, num, unit = m.groups()
+    secs = int(h or 0) * 3600 + int(mnt or 0) * 60
+    if num:
+        secs += float(num) / (1000 if unit and unit.lower() == "ms" else 1)
+    return float(secs)
 
 
 def get_llm(provider: str | None = None, model: str | None = None, cfg: dict[str, Any] | None = None) -> LLM:

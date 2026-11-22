@@ -151,3 +151,21 @@ def test_real_acronym_dictionary(real_acronyms: dict[str, list[str]]) -> None:
     assert real_acronyms["5GMM"] == ["5GS Mobility Management"]
     assert "5G LAN" in real_acronyms  # multi-word acronym kept thanks to the tab separator
     assert len(real_acronyms) > 250
+
+
+def test_any_signal_on_both_sides_searches_both() -> None:
+    # QoS model (23.501, 2.0) + QoS rules (24.501, 1.0): unbalanced scores still go to both specs.
+    d = route("How are QoS flows defined, and what does a QoS rule signalled to the UE contain?")
+    assert d.specs == BOTH and d.reason.startswith("signals for both")
+
+
+def test_rm_and_cm_states_are_architecture_signals() -> None:
+    assert route("What are the RM states?").specs == [SPEC_23501]
+    assert route("What does the UE do in CM-IDLE state?").specs == [SPEC_23501]
+    assert route("How does a UE deregister, in terms of RM states and NAS messages?").specs == BOTH
+
+
+def test_single_named_spec_beats_other_signals() -> None:
+    d = route("In 24.501, how is the QoS flow description coded?")
+    assert d.specs == [SPEC_24501] and "named" in d.reason
+    assert route("Compare TS 23.501 and TS 24.501 on QoS").specs == BOTH

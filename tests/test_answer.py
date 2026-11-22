@@ -186,6 +186,16 @@ def test_model_reference_marks_are_removed() -> None:
     assert clean_answer(raw) == "Cause #9 means X (TS 24.501, §A.1). Then Y (TS 24.501, §5.6.1.5)."
 
 
+def test_bracket_citations_are_kept_in_standard_form() -> None:
+    from src.generate.answer import clean_answer
+    from src.generate.citation_check import extract_citations
+
+    raw = "X happens【TS 24.501, §A.1】. Y too 【TS 24.501, §5.6.1.5】【3†L2】."
+    out = clean_answer(raw)
+    assert out == "X happens (TS 24.501, §A.1). Y too (TS 24.501, §5.6.1.5)."
+    assert [c.section for c in extract_citations(out)] == ["A.1", "5.6.1.5"]
+
+
 def test_ollama_unreachable_is_unavailable(monkeypatch) -> None:
     import requests
 
@@ -195,3 +205,54 @@ def test_ollama_unreachable_is_unavailable(monkeypatch) -> None:
     monkeypatch.setattr(requests, "get", refuse)
     with pytest.raises(LLMUnavailable, match="not running"):
         LLM("ollama", "llama3.1:8b").check()
+
+
+@pytest.mark.parametrize(
+    "msg, expected",
+    [
+        ("Rate limit reached ... on tokens per minute (TPM). Please try again in 7.5s. Visit ...", 7.5),
+        ("... Please try again in 450ms.", 0.45),
+        ("... on tokens per day (TPD): Limit 200000. Please try again in 1h2m3.5s.", 3723.5),
+        ("... Please try again in 12m30s.", 750.0),
+        ("no hint here", None),
+    ],
+)
+def test_retry_after_parsing(msg: str, expected) -> None:
+    from src.generate.llm import retry_after_seconds
+
+    got = retry_after_seconds(Exception(msg))
+    assert got == (pytest.approx(expected) if expected is not None else None)
+
+
+class _RateLimited(Exception):
+    status_code = 429
+
+
+def test_minute_rate_limit_waits_without_using_retries(monkeypatch) -> None:
+    llm = LLM("groq", "m", max_retries=1, backoff_s=0)
+    monkeypatch.setattr(llm, "check", lambda: None)
+    monkeypatch.setattr("src.generate.llm.time.sleep", lambda s: None)
+    calls = []
+
+    def flaky(*args):
+        calls.append(1)
+        if len(calls) < 3:
+            raise _RateLimited("Please try again in 2s.")
+        return "ok"
+
+    llm._call = flaky
+    assert llm.generate([{"role": "user", "content": "x"}]) == "ok" and len(calls) == 3
+
+
+def test_daily_rate_limit_raises_exhausted(monkeypatch) -> None:
+    from src.generate.llm import RateLimitExhausted
+
+    llm = LLM("groq", "m")
+    monkeypatch.setattr(llm, "check", lambda: None)
+
+    def daily(*args):
+        raise _RateLimited("tokens per day (TPD). Please try again in 1h5m.")
+
+    llm._call = daily
+    with pytest.raises(RateLimitExhausted):
+        llm.generate([{"role": "user", "content": "x"}])

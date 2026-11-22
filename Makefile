@@ -31,10 +31,10 @@ app:
 	$(PY) -m streamlit run src/app/streamlit_app.py --server.fileWatcherType none --browser.gatherUsageStats false
 
 eval-retrieval:
-	@echo Not implemented yet - step 13.
+	$(PY) -m eval.run_retrieval_eval
 
 eval-generation:
-	@echo Not implemented yet - step 14.
+	$(PY) -m eval.run_generation_eval
 
 eval: eval-retrieval eval-generation
 

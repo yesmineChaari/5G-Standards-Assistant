@@ -79,12 +79,24 @@ def _canon(text: str) -> str:
     return re.sub(r"[\s\"'`.*_]+", " ", text).strip().lower()
 
 
-_MODEL_MARKERS = re.compile(r"\s*【[^】]*】")
+_MODEL_MARKERS = re.compile(r"(\s*)【([^】]*)】")
+_SPEC_IN_MARK = re.compile(r"(?:3GPP\s+)?TS\s?\d{2}\.\d{3}")
+
+
+def _convert_mark(m: re.Match[str]) -> str:
+    inner = m.group(2).strip()
+    if _SPEC_IN_MARK.search(inner):  # a real citation in the model's bracket style
+        return f" ({inner})"
+    return ""  # an internal reference mark such as 1†L7-L12
 
 
 def clean_answer(text: str) -> str:
-    """Remove model-specific reference marks such as ``【1†L7-L12】`` (the spec citations stay)."""
-    return _MODEL_MARKERS.sub("", text).strip()
+    """Normalise model-specific brackets.
+
+    Some models (gpt-oss) write citations as ``【TS 24.501, §A.1】``: these become the standard
+    ``(TS 24.501, §A.1)``. Internal reference marks such as ``【1†L7-L12】`` are removed.
+    """
+    return _MODEL_MARKERS.sub(_convert_mark, text).strip()
 
 
 def is_refusal_text(text: str, refusal_message: str) -> bool:
