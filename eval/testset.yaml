@@ -1,0 +1,452 @@
+# Evaluation test set: 31 English questions
+#   10 simple TS 23.501 (S23-*), 10 simple TS 24.501 (S24-*), 8 cross-spec (X-*), 3 out-of-corpus (OOC-*).
+#
+# Gold sections and reference answers were proposed with scripts/find_sections.py from the parsed
+# spec text (TS 23.501 v18.12.0, TS 24.501 v18.14.0). They are CANDIDATES until a team member has
+# read the cited clauses in the .docx and set `verified: true`.
+#
+# Matching rule used by the retrieval evaluation: a retrieved chunk is relevant if it has the same
+# spec as a gold section and its section equals the gold section, is a sub-section of it, or the
+# gold section is in its merged_sections.
+#
+# Validate with:  python scripts/find_sections.py check
+
+# ----------------------------------------------------------------------------- TS 23.501 (simple)
+
+- id: "S23-01"
+  type: "simple"
+  question: "What is the role of the NRF in the 5G core network?"
+  expected_spec: ["TS 23.501"]
+  gold_sections:
+    - {spec: "TS 23.501", section: "6.2.6.1"}
+  reference_answer: >-
+    The Network Repository Function (NRF) supports service discovery: it receives NF Discovery
+    Requests from NF instances or SCPs and returns information on the discovered NF instances. It
+    maintains the NF profiles of available NF instances and their supported services, maintains SCP
+    profiles and supports SCP discovery, notifies subscribed consumers about newly registered,
+    updated or deregistered NF and SCP instances, supports P-CSCF discovery, and maintains the
+    health status of NFs and SCPs.
+  verified: false
+
+- id: "S23-02"
+  type: "simple"
+  question: "What are the main functions of the AMF?"
+  expected_spec: ["TS 23.501"]
+  gold_sections:
+    - {spec: "TS 23.501", section: "6.2.1"}
+  reference_answer: >-
+    The AMF terminates the RAN control-plane interface (N2) and NAS (N1), including NAS ciphering
+    and integrity protection. It performs registration management, connection management,
+    reachability management and mobility management, lawful intercept, access authentication and
+    access authorization. It transports SM messages between the UE and the SMF (transparent proxy),
+    SMS messages between the UE and the SMSF, and location services messages, and it provides the
+    Security Anchor Functionality (SEAF).
+  verified: false
+
+- id: "S23-03"
+  type: "simple"
+  question: "What functionality does the UPF provide?"
+  expected_spec: ["TS 23.501"]
+  gold_sections:
+    - {spec: "TS 23.501", section: "6.2.3"}
+  reference_answer: >-
+    The UPF is the anchor point for intra-/inter-RAT mobility, the external PDU Session point of
+    interconnect to the Data Network, and performs packet routing and forwarding (e.g. uplink
+    classifier, branching point), packet inspection, the user-plane part of policy rule
+    enforcement (gating, redirection, traffic steering), lawful intercept (UP collection), and can
+    allocate the UE IP address/prefix in response to an SMF request.
+  verified: false
+
+- id: "S23-04"
+  type: "simple"
+  question: "Which network functions does the N4 reference point connect?"
+  expected_spec: ["TS 23.501"]
+  gold_sections:
+    - {spec: "TS 23.501", section: "4.2.7"}
+    - {spec: "TS 23.501", section: "8.2.3.2"}
+  reference_answer: >-
+    N4 is the reference point between the SMF and the UPF. The SMF uses it to control the UPF
+    (N4 sessions); the control plane protocol for the SMF-UPF interface is defined in TS 29.244.
+  verified: false
+
+- id: "S23-05"
+  type: "simple"
+  question: "What is a 5QI?"
+  expected_spec: ["TS 23.501"]
+  gold_sections:
+    - {spec: "TS 23.501", section: "5.7.2.1"}
+    - {spec: "TS 23.501", section: "5.7.4"}
+  reference_answer: >-
+    A 5QI (5G QoS Identifier) is a scalar used as a reference to 5G QoS characteristics, i.e.
+    access node-specific parameters that control the QoS forwarding treatment of a QoS Flow
+    (scheduling weights, admission thresholds, queue management thresholds, link layer protocol
+    configuration). Standardized 5QI values map one-to-one to standardized combinations of 5G QoS
+    characteristics (Table 5.7.4-1).
+  verified: false
+
+- id: "S23-06"
+  type: "simple"
+  question: "What is the structure of an S-NSSAI?"
+  expected_spec: ["TS 23.501"]
+  gold_sections:
+    - {spec: "TS 23.501", section: "5.15.2.1"}
+  reference_answer: >-
+    An S-NSSAI identifies a Network Slice. It is comprised of a Slice/Service Type (SST), which
+    refers to the expected Network Slice behaviour in terms of features and services, and an
+    optional Slice Differentiator (SD), which complements the SST to differentiate amongst
+    multiple Network Slices of the same Slice/Service Type.
+  verified: false
+
+- id: "S23-07"
+  type: "simple"
+  question: "What are the SSC modes supported by the 5G System?"
+  expected_spec: ["TS 23.501"]
+  gold_sections:
+    - {spec: "TS 23.501", section: "5.6.9.1"}
+    - {spec: "TS 23.501", section: "5.6.9.2"}
+  reference_answer: >-
+    Three session and service continuity modes are defined. In SSC mode 1 the network preserves
+    the connectivity service (the IP address is preserved). In SSC mode 2 the network may release
+    the connectivity service and the PDU Session (and the IP address). In SSC mode 3 changes to the
+    user plane can be visible to the UE but the network ensures no loss of connectivity: a
+    connection through a new PDU Session Anchor is established before the previous one is
+    terminated. The SSC mode of a PDU Session does not change during its lifetime.
+  verified: false
+
+- id: "S23-08"
+  type: "simple"
+  question: "What does the NSSF do?"
+  expected_spec: ["TS 23.501"]
+  gold_sections:
+    - {spec: "TS 23.501", section: "6.2.14"}
+  reference_answer: >-
+    The Network Slice Selection Function selects the set of Network Slice instances serving the
+    UE, determines the Allowed NSSAI and the Configured NSSAI (and, if needed, their mapping to the
+    Subscribed S-NSSAIs), and determines the AMF Set to be used to serve the UE (or a list of
+    candidate AMFs, possibly by querying the NRF).
+  verified: false
+
+- id: "S23-09"
+  type: "simple"
+  question: "What is a QoS Flow in the 5G QoS model?"
+  expected_spec: ["TS 23.501"]
+  gold_sections:
+    - {spec: "TS 23.501", section: "5.7.1.1"}
+  reference_answer: >-
+    The QoS Flow is the finest granularity of QoS differentiation in a PDU Session. It is
+    identified by a QoS Flow ID (QFI), carried in an encapsulation header on N3/N9; traffic with
+    the same QFI in a PDU Session receives the same forwarding treatment. The 5G QoS model supports
+    GBR and Non-GBR QoS Flows, and the QFI is unique within a PDU Session.
+  verified: false
+
+- id: "S23-10"
+  type: "simple"
+  question: "What is the role of the PCF?"
+  expected_spec: ["TS 23.501"]
+  gold_sections:
+    - {spec: "TS 23.501", section: "6.2.4"}
+  reference_answer: >-
+    The Policy Control Function supports a unified policy framework to govern network behaviour,
+    provides policy rules to control plane functions to enforce them, and accesses subscription
+    information relevant for policy decisions in the UDR (located in the same PLMN).
+  verified: false
+
+# ----------------------------------------------------------------------------- TS 24.501 (simple)
+
+- id: "S24-01"
+  type: "simple"
+  question: "What does cause #9 mean in 5GMM?"
+  expected_spec: ["TS 24.501"]
+  gold_sections:
+    - {spec: "TS 24.501", section: "A.1"}
+    - {spec: "TS 24.501", section: "9.11.3.2"}
+  reference_answer: >-
+    5GMM cause #9 "UE identity cannot be derived by the network" is sent to the UE when the network
+    cannot derive the UE's identity from the 5G-GUTI or 5G-S-TMSI, e.g. because no matching
+    identity/context exists in the network or because of an integrity check failure of the
+    received message.
+  verified: false
+
+- id: "S24-02"
+  type: "simple"
+  question: "What is timer T3510, when is it started and stopped, and what is its value?"
+  expected_spec: ["TS 24.501"]
+  gold_sections:
+    - {spec: "TS 24.501", section: "10.2"}
+    - {spec: "TS 24.501", section: "5.5.1.2.7"}
+  reference_answer: >-
+    T3510 runs in state 5GMM-REGISTERED-INITIATED. It is started on transmission of the
+    REGISTRATION REQUEST message and stopped when a REGISTRATION ACCEPT or REGISTRATION REJECT
+    message is received. Its value is 15 s (85 s in WB-N1/CE mode, 27 s for access via a satellite
+    NG-RAN cell). On expiry the UE starts T3511 or T3502 as specified in clause 5.5.1.2.7 (initial
+    registration) or 5.5.1.3.7 (mobility and periodic registration update).
+  verified: false
+
+- id: "S24-03"
+  type: "simple"
+  question: "Which mandatory information elements does the REGISTRATION REQUEST message contain?"
+  expected_spec: ["TS 24.501"]
+  gold_sections:
+    - {spec: "TS 24.501", section: "8.2.6.1"}
+  reference_answer: >-
+    The REGISTRATION REQUEST message (UE to network) contains as mandatory IEs: Extended protocol
+    discriminator, Security header type, Spare half octet, Registration request message identity,
+    5GS registration type, ngKSI (NAS key set identifier) and 5GS mobile identity.
+  verified: false
+
+- id: "S24-04"
+  type: "simple"
+  question: "What are the main 5GMM states of the UE?"
+  expected_spec: ["TS 24.501"]
+  gold_sections:
+    - {spec: "TS 24.501", section: "5.1.3.2.1"}
+  reference_answer: >-
+    The 5GMM main states in the UE are 5GMM-NULL, 5GMM-DEREGISTERED, 5GMM-REGISTERED-INITIATED,
+    5GMM-REGISTERED, 5GMM-DEREGISTERED-INITIATED and 5GMM-SERVICE-REQUEST-INITIATED.
+  verified: false
+
+- id: "S24-05"
+  type: "simple"
+  question: "What is the purpose of the service request procedure in 5GMM?"
+  expected_spec: ["TS 24.501"]
+  gold_sections:
+    - {spec: "TS 24.501", section: "5.6.1.1"}
+  reference_answer: >-
+    The service request procedure is used to change the 5GMM mode from 5GMM-IDLE to
+    5GMM-CONNECTED, to request the establishment of user-plane resources for PDU sessions
+    established without user-plane resources, or, for a UE using control plane CIoT 5GS
+    optimization in 5GMM-IDLE, to initiate transfer of user data via the control plane. It is used
+    e.g. when the network has downlink signalling pending and the UE is in 5GMM-IDLE mode.
+  verified: false
+
+- id: "S24-06"
+  type: "simple"
+  question: "What does 5GSM cause #26 indicate?"
+  expected_spec: ["TS 24.501"]
+  gold_sections:
+    - {spec: "TS 24.501", section: "B.1"}
+    - {spec: "TS 24.501", section: "9.11.4.2"}
+  reference_answer: >-
+    5GSM cause #26 "Insufficient resources" is used by the UE or by the network to indicate that
+    the requested service cannot be provided due to insufficient resources.
+  verified: false
+
+- id: "S24-07"
+  type: "simple"
+  question: "What is the purpose of the NAS security mode control procedure?"
+  expected_spec: ["TS 24.501"]
+  gold_sections:
+    - {spec: "TS 24.501", section: "5.4.2.1"}
+  reference_answer: >-
+    The NAS security mode control procedure takes a 5G NAS security context into use and
+    initialises and starts NAS signalling security between the UE and the AMF with the
+    corresponding 5G NAS keys and 5G NAS security algorithms. The network may also use it to change
+    the 5G NAS security algorithms of a context in use, to change the uplink NAS COUNT value, or to
+    provide the selected EPS NAS security algorithms to the UE.
+  verified: false
+
+- id: "S24-08"
+  type: "simple"
+  question: "Which registration types can be indicated in the 5GS registration type IE?"
+  expected_spec: ["TS 24.501"]
+  gold_sections:
+    - {spec: "TS 24.501", section: "9.11.3.7"}
+  reference_answer: >-
+    The 5GS registration type value can indicate initial registration, mobility registration
+    updating, periodic registration updating, emergency registration, SNPN onboarding
+    registration, disaster roaming mobility registration updating and disaster roaming initial
+    registration. The IE also carries the follow-on request (FOR) bit.
+  verified: false
+
+- id: "S24-09"
+  type: "simple"
+  question: "Which identities can the 5GS mobile identity IE carry?"
+  expected_spec: ["TS 24.501"]
+  gold_sections:
+    - {spec: "TS 24.501", section: "9.11.3.4"}
+  reference_answer: >-
+    The 5GS mobile identity IE provides either the SUCI, the 5G-GUTI, the IMEI, the IMEISV, the
+    5G-S-TMSI, the MAC address or the EUI-64. It is a type 6 IE with a minimum length of 4 octets.
+  verified: false
+
+- id: "S24-10"
+  type: "simple"
+  question: "What is the meaning of 5GMM cause #7?"
+  expected_spec: ["TS 24.501"]
+  gold_sections:
+    - {spec: "TS 24.501", section: "A.2"}
+    - {spec: "TS 24.501", section: "9.11.3.2"}
+  reference_answer: >-
+    5GMM cause #7 "5GS services not allowed" is sent to the UE when it is not allowed to operate
+    5GS services.
+  verified: false
+
+# ----------------------------------------------------------------------------- cross-spec
+
+- id: "X-01"
+  type: "cross_spec"
+  question: "What does initial registration achieve in the 5G System architecture, and which NAS messages does the UE exchange with the AMF to perform it?"
+  expected_spec: ["TS 23.501", "TS 24.501"]
+  gold_sections:
+    - {spec: "TS 23.501", section: "5.3.2.1"}
+    - {spec: "TS 24.501", section: "5.5.1.2.2"}
+    - {spec: "TS 24.501", section: "5.5.1.2.4"}
+  reference_answer: >-
+    A UE registers to receive services that require registration; initial registration includes
+    network access control (user authentication and access authorization based on the subscription
+    in the UDM), and the identifier of the serving AMF is registered in the UDM (TS 23.501). In
+    NAS, the UE in 5GMM-DEREGISTERED sends a REGISTRATION REQUEST message to the AMF; if the
+    registration is accepted, the AMF sends a REGISTRATION ACCEPT message to the UE (TS 24.501).
+  verified: false
+
+- id: "X-02"
+  type: "cross_spec"
+  question: "What is the role of the SMF in PDU session establishment, and which 5GSM messages are used to request and accept a PDU session?"
+  expected_spec: ["TS 23.501", "TS 24.501"]
+  gold_sections:
+    - {spec: "TS 23.501", section: "6.2.2"}
+    - {spec: "TS 23.501", section: "5.6.1"}
+    - {spec: "TS 24.501", section: "6.4.1.2"}
+    - {spec: "TS 24.501", section: "6.4.1.3"}
+  reference_answer: >-
+    The SMF performs session management (establishment, modification and release, including tunnel
+    maintenance between UPF and AN), UE IP address allocation and management, and selection and
+    control of the UPF (TS 23.501). The UE initiates the procedure with a PDU SESSION ESTABLISHMENT
+    REQUEST message; if the connectivity with the requested DN is accepted, the SMF creates a PDU
+    SESSION ESTABLISHMENT ACCEPT message, which includes the authorized QoS rules (TS 24.501).
+  verified: false
+
+- id: "X-03"
+  type: "cross_spec"
+  question: "How does a UE deregister from the network, both in terms of RM states and NAS messages?"
+  expected_spec: ["TS 23.501", "TS 24.501"]
+  gold_sections:
+    - {spec: "TS 23.501", section: "5.3.2.2.3"}
+    - {spec: "TS 24.501", section: "5.5.2.2.1"}
+    - {spec: "TS 24.501", section: "5.5.2.2.2"}
+  reference_answer: >-
+    In RM-REGISTERED, the UE performs the Deregistration procedure and enters RM-DEREGISTERED when
+    it no longer needs to be registered (TS 23.501). In NAS, the UE sends a DEREGISTRATION REQUEST
+    message whose De-registration type IE indicates whether it is a "switch off" and for which
+    access(es); unless it is a switch off, the AMF answers with a DEREGISTRATION ACCEPT message,
+    and the UE then stops timer T3521 (TS 24.501).
+  verified: false
+
+- id: "X-04"
+  type: "cross_spec"
+  question: "How is network slicing identified in the architecture, and how does the UE indicate the slices it wants during registration?"
+  expected_spec: ["TS 23.501", "TS 24.501"]
+  gold_sections:
+    - {spec: "TS 23.501", section: "5.15.2.1"}
+    - {spec: "TS 23.501", section: "5.15.5.2.1"}
+    - {spec: "TS 24.501", section: "8.2.6.5"}
+    - {spec: "TS 24.501", section: "9.11.3.37"}
+  reference_answer: >-
+    A Network Slice is identified by an S-NSSAI (SST plus optional SD); when registering, the UE
+    provides a Requested NSSAI containing the S-NSSAIs of the slices it wishes to register to
+    (TS 23.501). In NAS, the Requested NSSAI IE is included in the REGISTRATION REQUEST message
+    when the registration type is initial registration or mobility registration updating, under
+    the conditions of clauses 5.5.1.2.2 and 5.5.1.3.2; it is coded with the NSSAI IE (TS 24.501).
+  verified: false
+
+- id: "X-05"
+  type: "cross_spec"
+  question: "When does a UE in CM-IDLE perform a service request, and which NAS message starts the procedure?"
+  expected_spec: ["TS 23.501", "TS 24.501"]
+  gold_sections:
+    - {spec: "TS 23.501", section: "5.3.3.2.2"}
+    - {spec: "TS 24.501", section: "5.6.1.1"}
+    - {spec: "TS 24.501", section: "5.6.1.2.1"}
+  reference_answer: >-
+    A UE in CM-IDLE and RM-REGISTERED performs a Service Request procedure to respond to paging
+    (unless in MICO mode) and when it has uplink signalling or user data to send (TS 23.501). In
+    NAS, the UE sends a SERVICE REQUEST message to the AMF, starts timer T3517 and enters
+    5GMM-SERVICE-REQUEST-INITIATED; the procedure moves the UE from 5GMM-IDLE to 5GMM-CONNECTED or
+    requests user-plane resources for PDU sessions (TS 24.501).
+  verified: false
+
+- id: "X-06"
+  type: "cross_spec"
+  question: "How are QoS flows defined, and what does a QoS rule signalled to the UE contain?"
+  expected_spec: ["TS 23.501", "TS 24.501"]
+  gold_sections:
+    - {spec: "TS 23.501", section: "5.7.1.1"}
+    - {spec: "TS 23.501", section: "5.7.1.4"}
+    - {spec: "TS 24.501", section: "6.2.5.1.1.2"}
+    - {spec: "TS 24.501", section: "9.11.4.13"}
+  reference_answer: >-
+    The QoS Flow is the finest granularity of QoS differentiation in a PDU Session and is
+    identified by a QFI; the UE maps uplink traffic to QoS Flows using QoS rules, which contain the
+    QFI, a packet filter set and a precedence value (TS 23.501). A signalled QoS rule contains an
+    indication of whether it is the default QoS rule, a QoS rule identifier (QRI), a QFI,
+    optionally a set of packet filters, and a precedence value; it is carried in the QoS rules IE
+    (TS 24.501).
+  verified: false
+
+- id: "X-07"
+  type: "cross_spec"
+  question: "What is the periodic registration update used for, and which timer triggers it in the UE?"
+  expected_spec: ["TS 23.501", "TS 24.501"]
+  gold_sections:
+    - {spec: "TS 23.501", section: "5.3.2.2.3"}
+    - {spec: "TS 23.501", section: "5.4.1.1"}
+    - {spec: "TS 24.501", section: "5.3.7"}
+    - {spec: "TS 24.501", section: "5.5.1.3.2"}
+  reference_answer: >-
+    The UE in RM-REGISTERED performs Periodic Registration Update when the periodic update timer
+    expires, to notify the network that it is still active; it is part of UE reachability
+    management (TS 23.501). In NAS, the periodic registration update notifies the network of the
+    UE's availability over 3GPP access and is controlled in the UE by timer T3512; when T3512
+    expires in 5GMM-IDLE mode, the UE sends a REGISTRATION REQUEST for mobility and periodic
+    registration update; the AMF supervises the UE with an implicit de-registration timer
+    (TS 24.501).
+  verified: false
+
+- id: "X-08"
+  type: "cross_spec"
+  question: "What is MICO mode and how does the UE request it in NAS signalling?"
+  expected_spec: ["TS 23.501", "TS 24.501"]
+  gold_sections:
+    - {spec: "TS 23.501", section: "5.4.1.3"}
+    - {spec: "TS 24.501", section: "5.3.6"}
+    - {spec: "TS 24.501", section: "8.2.6.10"}
+  reference_answer: >-
+    MICO (Mobile Initiated Connection Only) mode: the UE may indicate a preference for MICO mode
+    during Initial Registration or Mobility Registration Update, and the AMF decides (based on
+    local configuration, subscription, UE preference, policies, etc.) whether MICO mode is allowed
+    and indicates it during registration (TS 23.501). In NAS, the UE requests it by including the
+    MICO indication IE in the REGISTRATION REQUEST message; it shall not request MICO mode over
+    non-3GPP access or for emergency registration (TS 24.501).
+  verified: false
+
+# ----------------------------------------------------------------------------- out of corpus
+
+- id: "OOC-01"
+  type: "out_of_corpus"
+  question: "What is the frequency range of NR band n78?"
+  expected_spec: []
+  gold_sections: []
+  reference_answer: "I could not find this information in the documents."
+  absent_terms: ["n78", "3300 MHz", "frequency range"]
+  notes: "Defined in TS 38.101-1, not in the corpus."
+  verified: false
+
+- id: "OOC-02"
+  type: "out_of_corpus"
+  question: "How does Wi-Fi 7 multi-link operation work?"
+  expected_spec: []
+  gold_sections: []
+  reference_answer: "I could not find this information in the documents."
+  absent_terms: ["Wi-Fi 7", "Wi-Fi", "802.11be", "multi-link"]
+  notes: "IEEE 802.11be. Hard case: the reranker scores MPQUIC (multi-path) chunks high."
+  verified: false
+
+- id: "OOC-03"
+  type: "out_of_corpus"
+  question: "Which modulation schemes does LTE-M use?"
+  expected_spec: []
+  gold_sections: []
+  reference_answer: "I could not find this information in the documents."
+  absent_terms: ["modulation", "QPSK", "16QAM", "64QAM"]
+  notes: "Near-domain: 'LTE-M' itself occurs in TS 23.501 (RAT type), but nothing about modulation."
+  verified: false
