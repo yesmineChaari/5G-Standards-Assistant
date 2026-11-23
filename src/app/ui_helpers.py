@@ -20,7 +20,7 @@ SPEC_FILTERS = {
 # Suggested models per provider (the selector also lists the models a Groq key / Ollama server offers).
 DEFAULT_MODELS = {
     "groq": ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b"],
-    "gemini": ["gemini-2.5-flash", "gemini-2.5-pro"],
+    "gemini": ["gemini-3.1-flash-lite", "gemini-3.6-flash"],
     "openai": ["gpt-4o-mini", "gpt-4o"],
     "ollama": ["llama3.1:8b", "qwen2.5:7b", "mistral:7b"],
 }

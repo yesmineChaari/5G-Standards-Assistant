@@ -1,4 +1,5 @@
-# Usage: make <target>. Targets not implemented yet print the step that adds them.
+# Usage: make <target>. `make install` once, then `make all` runs the whole pipeline:
+# download -> ingest -> index -> test -> eval (retrieval, generation, tables).
 
 ifeq ($(OS),Windows_NT)
   PY := .venv/Scripts/python
@@ -44,5 +45,4 @@ eval: eval-retrieval eval-generation tables
 test:
 	$(PY) -m pytest -q tests
 
-all:
-	@echo Not implemented yet - step 16.
+all: download ingest index test eval

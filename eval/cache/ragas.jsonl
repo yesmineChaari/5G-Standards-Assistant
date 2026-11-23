@@ -1,0 +1,124 @@
+{"key": "9a8c8bce1b5b7320e935c70e", "score": 0.9565217391304348, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the role of the NRF in the 5G core network?"}
+{"key": "5e4874852b66157509e03153", "score": 0.8760925344881102, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the role of the NRF in the 5G core network?"}
+{"key": "83ce3c4bb7d7118236e4e17d", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What are the main functions of the AMF?"}
+{"key": "45dc3ab5b1fb748544ca090a", "score": 0.22043068812505454, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What are the main functions of the AMF?"}
+{"key": "dbc8845c19bb2c73355841a8", "score": 0.9583333333333334, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What functionality does the UPF provide?"}
+{"key": "d2557a4f5eb6709ebfbf3c39", "score": 0.21183249360681616, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What functionality does the UPF provide?"}
+{"key": "664d5b698190b685daca2bf1", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "Which network functions does the N4 reference point connect?"}
+{"key": "5958a718c3a853c0c6322b52", "score": 0.5960151144498677, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "Which network functions does the N4 reference point connect?"}
+{"key": "6345e9f2a783909ee2cffb5c", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What is a 5QI?"}
+{"key": "2f05c5f97871a5a0a96fbb7e", "score": 0.82441747879222, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What is a 5QI?"}
+{"key": "ff3fa63cf47fc3b7b3fa8c59", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the structure of an S-NSSAI?"}
+{"key": "887ecc34db5199cc2f3a864f", "score": 0.8433964317493934, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the structure of an S-NSSAI?"}
+{"key": "81f86d7b0748eb02e34db5f9", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What are the SSC modes supported by the 5G System?"}
+{"key": "a4f97d2cc3dba81ed04f8f51", "score": 0.7336863941124041, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What are the SSC modes supported by the 5G System?"}
+{"key": "05bf67376df4a71d608bc7af", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What does the NSSF do?"}
+{"key": "5b0d5b29691da047ae25446e", "score": 0.657373203838837, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What does the NSSF do?"}
+{"key": "32538d5c04a0cb45c4ff3d01", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What is a QoS Flow in the 5G QoS model?"}
+{"key": "4ef97ed0535abd1a0f04bf99", "score": 0.5768063145375297, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What is a QoS Flow in the 5G QoS model?"}
+{"key": "c256cdd311669e22a3f2e8c9", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the role of the PCF?"}
+{"key": "7b5df28c51ed538281e4bf5d", "score": 0.6567608856349703, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the role of the PCF?"}
+{"key": "75cb08b2429a7149d956a47d", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What does cause #9 mean in 5GMM?"}
+{"key": "f425c6f906a40415005efe0b", "score": 0.6159450674799827, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What does cause #9 mean in 5GMM?"}
+{"key": "7f4d34e1346e87240cd2083a", "score": 0.9047619047619048, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What is timer T3510, when is it started and stopped, and what is its value?"}
+{"key": "72063d8bb8396f1dad3c40e9", "score": 0.6177241201011778, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What is timer T3510, when is it started and stopped, and what is its value?"}
+{"key": "7958e5720be2a714bc39a0c1", "score": 0.2, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "Which mandatory information elements does the REGISTRATION REQUEST message conta"}
+{"key": "cf2d75b390240366e5da20b4", "score": 0.22653376627047545, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "Which mandatory information elements does the REGISTRATION REQUEST message conta"}
+{"key": "ebbfa5c0dabe32765f326f5d", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the purpose of the service request procedure in 5GMM?"}
+{"key": "64082c6639e994713e8d82ef", "score": 0.7436030593846144, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the purpose of the service request procedure in 5GMM?"}
+{"key": "abebf1998671811db3fe90cb", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What does 5GSM cause #26 indicate?"}
+{"key": "b1f8ad69ada9c62b065efe8a", "score": 0.9790106541109262, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What does 5GSM cause #26 indicate?"}
+{"key": "7d1b678482c51fde887bd15a", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the purpose of the NAS security mode control procedure?"}
+{"key": "0cc239b35c146ff7780f12f6", "score": 0.7390951040658972, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the purpose of the NAS security mode control procedure?"}
+{"key": "add298679f3c9ac1fdf33417", "score": 0.7142857142857143, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "Which registration types can be indicated in the 5GS registration type IE?"}
+{"key": "71a097d4af366631b20e093d", "score": 0.6705314502912414, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "Which registration types can be indicated in the 5GS registration type IE?"}
+{"key": "efec5b5304e1650fed0208f5", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the meaning of 5GMM cause #7?"}
+{"key": "4b4f79cac9046dfadd37adf3", "score": 0.9831073173714594, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the meaning of 5GMM cause #7?"}
+{"key": "03277a75517cd981c1ff77db", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the role of the SMF in PDU session establishment, and which 5GSM message"}
+{"key": "b99643c8ad147bc975acb8fe", "score": 0.6555497014785896, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the role of the SMF in PDU session establishment, and which 5GSM message"}
+{"key": "a2bd9fd10bdb5e26adc563ca", "score": 0.8461538461538461, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "How does a UE deregister from the network, both in terms of RM states and NAS me"}
+{"key": "6f6736c3a8aca59f61b2f66e", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What are the main functions of the AMF?"}
+{"key": "5ff283770d775d28411254aa", "score": 0.21882160251562705, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What are the main functions of the AMF?"}
+{"key": "d741ead95a4e79183517f798", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What are the SSC modes supported by the 5G System?"}
+{"key": "c7c36d01e99a0d3aab14a1cc", "score": 0.7761493038793068, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What are the SSC modes supported by the 5G System?"}
+{"key": "c50dd0ceb04665f74539f36e", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the role of the PCF?"}
+{"key": "0ead39f7ff6954224734f66c", "score": 0.6449095851226936, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the role of the PCF?"}
+{"key": "4c05e8febe92acba175aaace", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What does cause #9 mean in 5GMM?"}
+{"key": "deae9179acb7babffbff9215", "score": 0.6564442835442428, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What does cause #9 mean in 5GMM?"}
+{"key": "a847afa9eeeac332d7ac905e", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What is timer T3510, when is it started and stopped, and what is its value?"}
+{"key": "b2d8cd5dc70dd92734443213", "score": 0.628739450966664, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What is timer T3510, when is it started and stopped, and what is its value?"}
+{"key": "466f6716d52b7a5e0a7db980", "score": 0.6111111111111112, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "Which mandatory information elements does the REGISTRATION REQUEST message conta"}
+{"key": "35bd060d2322dce6bbc48e80", "score": 0.22436103284132203, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "Which mandatory information elements does the REGISTRATION REQUEST message conta"}
+{"key": "8d83930d717b380d2c8c15da", "score": 0.7142857142857143, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "Which registration types can be indicated in the 5GS registration type IE?"}
+{"key": "cde7c43bc4ecb184b0a67b48", "score": 0.9098151511944158, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "Which registration types can be indicated in the 5GS registration type IE?"}
+{"key": "c6486fe2cb13c57a771cdcce", "score": 0.75, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the meaning of 5GMM cause #7?"}
+{"key": "92a932866b5b8834a905b803", "score": 0.8729534114482417, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the meaning of 5GMM cause #7?"}
+{"key": "3276e6397bc8dbe5b574e08b", "score": 0.5219410857112716, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "How does a UE deregister from the network, both in terms of RM states and NAS me"}
+{"key": "bf7dedb5ebecc3c6079365f9", "score": 0.7142857142857143, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "How is network slicing identified in the architecture, and how does the UE indic"}
+{"key": "0aaca110fa228a5c5046e1a7", "score": 0.581472087192386, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "How is network slicing identified in the architecture, and how does the UE indic"}
+{"key": "2f89ec46bf3c22ddd4e47cd5", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "When does a UE in CM-IDLE perform a service request, and which NAS message start"}
+{"key": "06de1c8acf2392241c2d5c1e", "score": 0.6549769267556361, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "When does a UE in CM-IDLE perform a service request, and which NAS message start"}
+{"key": "6f45956c469806dd53a0ea62", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "How are QoS flows defined, and what does a QoS rule signalled to the UE contain?"}
+{"key": "566c4c98391b6ed8ee83d978", "score": 0.6795759276773766, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "How are QoS flows defined, and what does a QoS rule signalled to the UE contain?"}
+{"key": "22e7ff851c0e1cc5bd957f53", "score": 1.0, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the periodic registration update used for, and which timer triggers it i"}
+{"key": "ce5e5440d2b2608a4b68bbdf", "score": 0.7259406502126133, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What is the periodic registration update used for, and which timer triggers it i"}
+{"key": "88220064ff2dad22ecf15121", "score": 0.8571428571428571, "metric": "faithfulness", "judge": "groq:openai/gpt-oss-20b", "question": "What is MICO mode and how does the UE request it in NAS signalling?"}
+{"key": "af68d5da07c17c75311b5f39", "score": 0.64631039096907, "metric": "answer_correctness", "judge": "groq:openai/gpt-oss-20b", "question": "What is MICO mode and how does the UE request it in NAS signalling?"}
+{"key": "f59350b4826026153460588f", "score": 0.875, "metric": "faithfulness", "judge": "gemini:gemini-3.6-flash", "question": "What is the role of the NRF in the 5G core network?"}
+{"key": "49ee44f00455cc33971d3093", "score": 0.8508824504544968, "metric": "answer_correctness", "judge": "gemini:gemini-3.6-flash", "question": "What is the role of the NRF in the 5G core network?"}
+{"key": "268e81185267d6fc140798a5", "score": 1.0, "metric": "faithfulness", "judge": "gemini:gemini-3.6-flash", "question": "What are the main functions of the AMF?"}
+{"key": "d841d9fd1431b64b64cbf9d6", "score": 0.21882160251562705, "metric": "answer_correctness", "judge": "gemini:gemini-3.6-flash", "question": "What are the main functions of the AMF?"}
+{"key": "e768e91406b207fd8a808084", "score": 0.21183249360681616, "metric": "answer_correctness", "judge": "gemini:gemini-3.6-flash", "question": "What functionality does the UPF provide?"}
+{"key": "85eb4e5438d5eb4d9c06e0db", "score": 1.0, "metric": "faithfulness", "judge": "gemini:gemini-3.6-flash", "question": "Which network functions does the N4 reference point connect?"}
+{"key": "c6d566bb3ff7673b05a717b7", "score": 0.6495865430212963, "metric": "answer_correctness", "judge": "gemini:gemini-3.6-flash", "question": "Which network functions does the N4 reference point connect?"}
+{"key": "7daab7725c48d6dca40bf785", "score": 0.8333333333333334, "metric": "faithfulness", "judge": "gemini:gemini-3.6-flash", "question": "What is a 5QI?"}
+{"key": "3bb5c462aa5ecf6eceff2a18", "score": 0.8181818181818182, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the role of the NRF in the 5G core network?"}
+{"key": "972d247e5d0f8ed44fa03c3e", "score": 0.7332353916309673, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the role of the NRF in the 5G core network?"}
+{"key": "d183aa3887d70d94dae656b1", "score": 1.0, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What are the main functions of the AMF?"}
+{"key": "83bf3777d7e871bdf5336677", "score": 0.21882160251562705, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What are the main functions of the AMF?"}
+{"key": "dbdb5c1d4ad1bf187e991148", "score": 0.9772727272727273, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What functionality does the UPF provide?"}
+{"key": "251d3af17c878e392a35e839", "score": 0.5868324936068161, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What functionality does the UPF provide?"}
+{"key": "a9a81292e36c6ff4ed49675a", "score": 1.0, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "Which network functions does the N4 reference point connect?"}
+{"key": "bfafc43c97c5d2b37a9c6d34", "score": 0.6495865430212963, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "Which network functions does the N4 reference point connect?"}
+{"key": "6da4aef21c2bbc5c32b1240a", "score": 1.0, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is a 5QI?"}
+{"key": "9c8fbf68370604bbc2050e82", "score": 0.82441747879222, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is a 5QI?"}
+{"key": "3b8446ea12dd3e390750fd8d", "score": 1.0, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the structure of an S-NSSAI?"}
+{"key": "de6f310e52895501cd6460b1", "score": 0.8433964317493934, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the structure of an S-NSSAI?"}
+{"key": "3b2840c68fdb7b18d5585545", "score": 1.0, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What are the SSC modes supported by the 5G System?"}
+{"key": "d7cffe473b69e3ca136f254e", "score": 0.7556947584247614, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What are the SSC modes supported by the 5G System?"}
+{"key": "ffbc370b4488081b3bfe3105", "score": 1.0, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What does the NSSF do?"}
+{"key": "e16003846427f2b46a162ab8", "score": 0.5134852581682089, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What does the NSSF do?"}
+{"key": "e05fa930a4b9127da9b1f76d", "score": 1.0, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is a QoS Flow in the 5G QoS model?"}
+{"key": "daa60e69ff3132b3127fc4d3", "score": 0.563985801717017, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is a QoS Flow in the 5G QoS model?"}
+{"key": "8f9c03ba4f9fe94cf1152d14", "score": 0.75, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the role of the PCF?"}
+{"key": "195f91e4db6e71abfeca1c37", "score": 0.5699095851226936, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the role of the PCF?"}
+{"key": "70052d777bcd77f200135892", "score": 1.0, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What does cause #9 mean in 5GMM?"}
+{"key": "e999539462aa887fa9665f0e", "score": 0.7852321623321215, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What does cause #9 mean in 5GMM?"}
+{"key": "c7fa14bcb67b86e40535bc6b", "score": 0.9545454545454546, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is timer T3510, when is it started and stopped, and what is its value?"}
+{"key": "31c229b46c1faf47e5a97628", "score": 0.5282930223952351, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is timer T3510, when is it started and stopped, and what is its value?"}
+{"key": "d78115fe1aec715850ffef42", "score": 0.7083333333333334, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "Which mandatory information elements does the REGISTRATION REQUEST message conta"}
+{"key": "76908ab4e4453e6af025af63", "score": 0.22436103284132203, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "Which mandatory information elements does the REGISTRATION REQUEST message conta"}
+{"key": "9e8ffa7ebc60880a51b0bec4", "score": 1.0, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the purpose of the service request procedure in 5GMM?"}
+{"key": "4d70f4a651ee89de651dbf5a", "score": 0.7436030593846144, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the purpose of the service request procedure in 5GMM?"}
+{"key": "08d196efcb3560757592a78b", "score": 1.0, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What does 5GSM cause #26 indicate?"}
+{"key": "a6ca828b4e52bd0c6c9ab9fe", "score": 0.9790106541109262, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What does 5GSM cause #26 indicate?"}
+{"key": "2cf7023f94272ee0a0f7b3d6", "score": 1.0, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the purpose of the NAS security mode control procedure?"}
+{"key": "c77eadbb3240420b0d57191a", "score": 0.6890951040658971, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the purpose of the NAS security mode control procedure?"}
+{"key": "f30b2b7527dd56312ef0a4b5", "score": 0.7142857142857143, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "Which registration types can be indicated in the 5GS registration type IE?"}
+{"key": "10b08e1f1a3761c5167a8ab8", "score": 0.7800074588867235, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "Which registration types can be indicated in the 5GS registration type IE?"}
+{"key": "26c5c1ba73ef5dd0c290a953", "score": 1.0, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the meaning of 5GMM cause #7?"}
+{"key": "a434fd97e85b1baa822f3acd", "score": 0.830096268591099, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the meaning of 5GMM cause #7?"}
+{"key": "a5829720d86860a4bc854700", "score": 0.875, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the role of the SMF in PDU session establishment, and which 5GSM message"}
+{"key": "156449c489c4c9d198e11cc2", "score": 0.7180497014785895, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the role of the SMF in PDU session establishment, and which 5GSM message"}
+{"key": "73f65eb37e0cfc2a2e986785", "score": 1.0, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "How does a UE deregister from the network, both in terms of RM states and NAS me"}
+{"key": "4f1128ddadc08551b7d78480", "score": 0.32457266465864, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "How does a UE deregister from the network, both in terms of RM states and NAS me"}
+{"key": "d346da554b1883886f1f27d8", "score": 0.5714285714285714, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "How is network slicing identified in the architecture, and how does the UE indic"}
+{"key": "efdadf0786b9a8bd72941e45", "score": 0.5279006586209574, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "How is network slicing identified in the architecture, and how does the UE indic"}
+{"key": "3924a40c285a233a7a245179", "score": 1.0, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "When does a UE in CM-IDLE perform a service request, and which NAS message start"}
+{"key": "0b456c42ce9ad67430d95932", "score": 0.5076554981842075, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "When does a UE in CM-IDLE perform a service request, and which NAS message start"}
+{"key": "5e4d4a8c95c088248ba8f039", "score": 1.0, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "How are QoS flows defined, and what does a QoS rule signalled to the UE contain?"}
+{"key": "56a852286b65092213bc2ed4", "score": 0.6045759276773767, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "How are QoS flows defined, and what does a QoS rule signalled to the UE contain?"}
+{"key": "6932924b21053a0a24ddb6c3", "score": 1.0, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the periodic registration update used for, and which timer triggers it i"}
+{"key": "f0e0d1382efc0b0f54f2fd87", "score": 0.6759406502126133, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the periodic registration update used for, and which timer triggers it i"}
+{"key": "40399348b5ad479af09285a5", "score": 0.7142857142857143, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is MICO mode and how does the UE request it in NAS signalling?"}
+{"key": "422f1151ebb93e387b65f099", "score": 0.5177389623976414, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is MICO mode and how does the UE request it in NAS signalling?"}

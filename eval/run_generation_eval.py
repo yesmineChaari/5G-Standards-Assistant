@@ -36,15 +36,15 @@ import hashlib
 import json
 import logging
 import sys
-import time
 from datetime import date
 from pathlib import Path
 from typing import Any
 
+from eval.llm_cache import CachedLLM, _hash
 from eval.metrics import is_relevant, load_testset, mean, question_group, unverified_ids
 from eval.run_retrieval_eval import CONFIGS, flag_text, fmt, md_table, retrieval_code_hash
 from src.config import load_config, resolve_path
-from src.generate.llm import LLM, RateLimitExhausted, get_llm
+from src.generate.llm import LLMUnavailable, RateLimitExhausted, get_llm
 from src.index.common import file_sha256
 
 logger = logging.getLogger("eval.generation")
@@ -56,64 +56,11 @@ MANUAL_CONFIG = "full"
 GENERATION_CODE = ["src/generate/answer.py", "src/generate/prompt.py", "src/generate/citation_check.py"]
 
 
-def _hash(obj: Any, n: int = 24) -> str:
-    return hashlib.sha256(json.dumps(obj, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:n]
-
-
 def _code_hash() -> str:
     h = hashlib.sha256(retrieval_code_hash().encode())
     for rel in GENERATION_CODE:
         h.update(resolve_path(rel).read_bytes())
     return h.hexdigest()[:16]
-
-
-# --------------------------------------------------------------------------- cached LLM
-
-
-class CachedLLM:
-    """Wraps an :class:`LLM`; identical (model, messages, settings) calls are answered from disk."""
-
-    def __init__(self, llm: LLM, path: Path) -> None:
-        self.llm = llm
-        self.path = path
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.cache: dict[str, dict[str, Any]] = {}
-        if path.exists():
-            for line in path.read_text(encoding="utf-8").splitlines():
-                if line.strip():
-                    rec = json.loads(line)
-                    self.cache[rec["key"]] = rec
-        self.hits = self.misses = 0
-        self.last_latency = 0.0
-
-    @property
-    def name(self) -> str:
-        return self.llm.name
-
-    def check(self) -> None:
-        self.llm.check()
-
-    def generate(self, messages, temperature=None, max_tokens=None) -> str:
-        key = _hash([self.llm.name, self.llm.reasoning_effort, messages, temperature, max_tokens,
-                     self.llm.temperature, self.llm.max_tokens])
-        if key in self.cache:
-            self.hits += 1
-            self.last_latency = self.cache[key]["latency_s"]
-            return self.cache[key]["text"]
-        t0 = time.perf_counter()
-        text = self.llm.generate(messages, temperature=temperature, max_tokens=max_tokens)
-        # model time only: waiting for the provider's rate limit is not latency of the system
-        self.last_latency = time.perf_counter() - t0 - getattr(self.llm, "last_wait_s", 0.0)
-        self.misses += 1
-        rec = {"key": key, "text": text, "latency_s": self.last_latency, "model": self.llm.name}
-        self.cache[key] = rec
-        with self.path.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-        return text
-
-    def classify(self, prompt: str) -> str:
-        return self.generate([{"role": "user", "content": prompt}], temperature=0.0,
-                             max_tokens=self.llm.classify_max_tokens)
 
 
 # --------------------------------------------------------------------------- generation
@@ -125,9 +72,10 @@ class GenerationRunner:
         from src.retrieve.pipeline import Pipeline
 
         self.cfg = cfg
-        base_llm = get_llm(cfg=cfg)
-        base_llm.check()
-        self.llm = CachedLLM(base_llm, resolve_path(CACHE_DIR) / "llm_calls.jsonl")
+        self.llm = CachedLLM(get_llm(cfg=cfg), resolve_path(CACHE_DIR) / "llm_calls.jsonl")
+        self.llm.check()  # no API key: replay of the recorded calls only
+        if self.llm.replay_only:
+            logger.warning("%s unavailable (no API key): replaying recorded LLM calls only", self.llm.name)
         self.pipeline = Pipeline(cfg, llm_classifier=self.llm.classify)
         self.answerer = Answerer(cfg, llm=self.llm, pipeline=self.pipeline)
         self.use_cache = use_cache
@@ -185,7 +133,7 @@ class GenerationRunner:
                 continue
             try:
                 rec = {"key": key, "id": e["id"], "config": config, **self.answer_one(config, e)}
-            except RateLimitExhausted as exc:
+            except (RateLimitExhausted, LLMUnavailable) as exc:  # quota reached, or not recorded and no key
                 logger.error("Stopping: %s", exc)
                 return out, False
             out[e["id"]] = rec
@@ -437,7 +385,7 @@ def main(argv: list[str] | None = None) -> int:
     for name in args.configs:
         records[name], complete[name] = runner.run(name, entries)
         logger.info("[%s] %d/%d answered%s", name, len(records[name]), len(entries),
-                    "" if complete[name] else " (stopped: quota)")
+                    "" if complete[name] else " (stopped: quota or no API key)")
         if not complete[name]:  # quota reached: the remaining configurations are not started
             for rest in args.configs[args.configs.index(name) + 1:]:
                 records[rest], complete[rest] = {}, False
@@ -455,7 +403,7 @@ def main(argv: list[str] | None = None) -> int:
         try:
             judge.check()
         except Exception as exc:  # no key for the judge: answers and citations are still evaluated
-            logger.error("RAGAS judge %s unavailable (%s); RAGAS scores skipped", judge.name, exc)
+            logger.warning("RAGAS judge %s unavailable (%s); recorded scores only", judge.name, exc)
             judge.exhausted = True
         for spec in ev.get("compare_judges") or []:
             provider, _, model = spec.partition(":")

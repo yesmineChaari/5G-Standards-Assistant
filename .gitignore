@@ -14,8 +14,13 @@ data/raw/*
 data/indexes/*
 !data/indexes/.gitkeep
 
-# LLM output cache
-eval/cache/
+# Evaluation caches. The recorded LLM calls and RAGAS judge scores are versioned so that
+# `make eval` can be replayed without API keys; answers and retrieval results are recomputed.
+eval/cache/*
+!eval/cache/ragas.jsonl
+!eval/cache/generation/
+eval/cache/generation/*
+!eval/cache/generation/llm_calls.jsonl
 
 # Editors / OS
 .vscode/

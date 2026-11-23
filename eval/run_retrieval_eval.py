@@ -103,13 +103,14 @@ class RetrievalRunner:
         self.cfg = cfg
         classifier, self.router_llm = None, None
         if llm_routing:
-            try:
+            try:  # recorded calls (shared with the generation evaluation) are replayed without a key
+                from eval.llm_cache import CachedLLM
                 from src.generate.llm import get_llm
 
-                llm = get_llm(cfg=cfg)
+                llm = CachedLLM(get_llm(cfg=cfg))
                 llm.check()
                 classifier, self.router_llm = llm.classify, llm.name
-            except Exception as exc:  # no key: ties search both specs
+            except Exception as exc:  # no key and nothing recorded: ties search both specs
                 logger.warning("No LLM for routing ties (%s); ties search both specs", exc)
         self.pipeline = Pipeline(cfg, llm_classifier=classifier)
         self.use_cache = use_cache

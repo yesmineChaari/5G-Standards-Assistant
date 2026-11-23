@@ -6,7 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from eval.run_generation_eval import CachedLLM, aggregate, apply_ragas, citation_stats, read_manual, write_manual
+from eval.llm_cache import CachedLLM
+from eval.run_generation_eval import aggregate, apply_ragas, citation_stats, read_manual, write_manual
 from src.generate.llm import LLM
 
 REFUSAL = "I could not find this information in the documents."
@@ -88,6 +89,31 @@ def test_cached_llm_reuses_identical_calls(tmp_path: Path, monkeypatch) -> None:
     again = CachedLLM(llm, tmp_path / "calls.jsonl")  # reloaded from disk
     assert again.generate(msgs) == "reply" and len(calls) == 1
     assert again.generate([{"role": "user", "content": "other"}]) == "reply" and len(calls) == 2
+
+
+def test_cached_llm_replays_without_api_key(tmp_path: Path, monkeypatch) -> None:
+    from src.generate.llm import LLMUnavailable
+
+    monkeypatch.setattr("src.generate.llm.get_api_key", lambda provider: None)
+    llm = LLM("groq", "m")
+    with pytest.raises(LLMUnavailable):  # nothing recorded and no key
+        CachedLLM(llm, tmp_path / "calls.jsonl").check()
+    msgs = [{"role": "user", "content": "q"}]
+    key_free = CachedLLM(llm, tmp_path / "calls.jsonl")
+    key_free.cache["x"] = {}  # something recorded: replay mode instead of an error
+    key_free.check()
+    assert key_free.replay_only
+    recorded = CachedLLM(llm, tmp_path / "rec.jsonl")
+    monkeypatch.setattr(llm, "check", lambda: None)
+    monkeypatch.setattr(llm, "_call", lambda *a: "recorded reply")
+    assert recorded.generate(msgs) == "recorded reply"
+    monkeypatch.undo()
+    monkeypatch.setattr("src.generate.llm.get_api_key", lambda provider: None)
+    replay = CachedLLM(LLM("groq", "m"), tmp_path / "rec.jsonl")
+    replay.check()
+    assert replay.replay_only and replay.generate(msgs) == "recorded reply"  # same prompt: from disk
+    with pytest.raises(LLMUnavailable):  # prompt not recorded: needs the provider
+        replay.generate([{"role": "user", "content": "new"}])
 
 
 def test_daily_limit_detection() -> None:
