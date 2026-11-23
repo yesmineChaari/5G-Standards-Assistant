@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import html
 import re
 from typing import Any, Iterable, Sequence
 
@@ -71,16 +72,19 @@ def is_cited(chunk: dict[str, Any], citations: Sequence[dict[str, str]]) -> bool
 
 
 def highlight_citations(answer: str, invalid: Sequence[dict[str, str]]) -> str:
-    """Colour citations in the answer: invalid ones red, valid ones green. Text is never removed."""
+    """Colour citations in the answer: valid ones in the theme colour, invalid ones red and flagged.
+
+    Text is never removed.
+    """
     bad = {(c["spec"], c["section"]) for c in invalid}
     out, pos = [], 0
     for start, end, cits in citation_spans(answer):
         out.append(answer[pos:start])
         label = answer[start:end]
         if any((c.spec, c.section) in bad for c in cits):
-            out.append(f":red[**{label}** ⚠]")
+            out.append(f":red[**{label}**, not in the sources]")
         else:
-            out.append(f":green[{label}]")
+            out.append(f":primary[**{label}**]")
         pos = end
     out.append(answer[pos:])
     return "".join(out)
@@ -100,3 +104,64 @@ def refusal_explanation(layer: str | None, top_score: float | None, threshold: f
 def format_latency(latency: dict[str, float]) -> str:
     names = {"retrieval_s": "retrieval", "llm_s": "LLM", "total_s": "total"}
     return " · ".join(f"{names.get(k, k)} {v:.1f} s" for k, v in latency.items())
+
+
+# --------------------------------------------------------------------------- HTML fragments
+# Every value inserted below goes through html.escape, so passage or answer text cannot inject markup.
+
+_FLAG_NAMES = {
+    "use_hybrid": "hybrid",
+    "use_reranker": "reranker",
+    "use_routing": "routing",
+    "use_acronym_expansion": "acronyms",
+}
+
+
+def flags_summary(flags: dict[str, Any]) -> str:
+    """``hybrid, reranker, routing on · acronyms off`` (only the parts that apply)."""
+    on = [_FLAG_NAMES.get(k, k) for k, v in flags.items() if v]
+    off = [_FLAG_NAMES.get(k, k) for k, v in flags.items() if not v]
+    parts = []
+    if on:
+        parts.append(", ".join(on) + " on")
+    if off:
+        parts.append(", ".join(off) + " off")
+    return " · ".join(parts)
+
+
+def chip(text: str, kind: str = "") -> str:
+    cls = f"chip {kind}".strip()
+    return f'<span class="{cls}">{html.escape(text)}</span>'
+
+
+def meta_html(specs: Sequence[str], reason: str, top_score: float | None = None,
+              total_s: float | None = None) -> str:
+    """Route, best score and latency as a row of small labels."""
+    parts = [chip(s, "spec") for s in specs]
+    if top_score is not None:
+        parts.append(chip(f"top score {top_score:.2f}"))
+    if total_s is not None:
+        parts.append(chip(f"{total_s:.1f} s"))
+    if reason:
+        parts.append(f'<span class="meta-note">{html.escape(reason)}</span>')
+    return f'<div class="meta">{"".join(parts)}</div>'
+
+
+def notice_html(title: str, body: str, detail: str = "", kind: str = "") -> str:
+    """A bordered notice (refusal, warning, missing LLM). ``body`` may be bold as a whole."""
+    cls = f"notice {kind}".strip()
+    out = (f'<div class="{cls}"><p class="notice-title">{html.escape(title)}</p>'
+           f'<p class="notice-body">{html.escape(body)}</p>')
+    if detail:
+        out += f'<p class="notice-detail">{html.escape(detail)}</p>'
+    return out + "</div>"
+
+
+def question_html(question: str) -> str:
+    return f'<p class="q-label">Question</p><p class="q-text">{html.escape(question)}</p>'
+
+
+def source_label(rank: int, spec: str, section: str, title: str, score: str, cited: bool) -> str:
+    """Expander label of a source passage (plain text: Streamlit renders it as markdown)."""
+    mark = " · cited" if cited else ""
+    return f"{rank} · **{spec} §{section}** {escape_md(title)} · {score}{mark}"

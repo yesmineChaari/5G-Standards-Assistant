@@ -261,6 +261,12 @@ Result: 5,163 chunks (TS 23.501: 1,816; TS 24.501: 3,347), median 356 tokens, 85
   (`§§…`, `;`-separated specs, `3GPP TS …`, bracket marks). Each (spec, section) must be the
   section of a retrieved chunk or one of its `merged_sections`; invalid citations are reported in
   the UI and in the evaluation, never silently removed.
+- **Passage references:** the model sometimes refers to a context passage by its number (`[2]`,
+  `【2†L7-L12】`) or gives a section without its spec (`[§5.3.6]`). Before the check, these are
+  rewritten as the citation of that passage (`(TS 24.501, §5.3.6)`); a section without spec gets
+  the spec of the only retrieved passage with that section. References that cannot be resolved
+  without guessing (number out of range, section in passages of both specs or in none) are not
+  counted as citations.
 
 ## Evaluation
 
@@ -346,25 +352,31 @@ single spec).
 
 | Config | Refusal acc. (OOC) | False refusals | With citation | Citation validity | Citation correctness | Faithfulness | Answer correctness |
 |---|---|---|---|---|---|---|---|
-| **`full`** | 1.00 | 0.11 | 0.84 | 1.00 | 0.67 | 0.92 (n=25) | 0.56 (n=28) |
-| `hybrid_rerank` | 1.00 | 0.11 | 0.96 | 1.00 | 0.62 | - | - |
-| `full_no_hybrid` | 1.00 | 0.07 | 0.85 | 1.00 | 0.62 | - | - |
-| `full_no_rerank` | 1.00 | 0.04 | 0.93 | 0.94 | 0.62 | - | - |
-| `dense_only` | 1.00 | 0.14 | 0.88 | 0.97 | 0.69 | - | - |
+| **`full`** | 1.00 | 0.11 | 1.00 | 1.00 | 0.63 | 0.92 (n=22) | 0.58 (n=24) |
+| `hybrid_rerank` | 1.00 | 0.11 | 1.00 | 1.00 | 0.61 | - | - |
+| `full_no_hybrid` | 1.00 | 0.07 | 1.00 | 1.00 | 0.59 | - | - |
+| `full_no_rerank` | 1.00 | 0.04 | 1.00 | 0.95 | 0.61 | - | - |
+| `dense_only` | 1.00 | 0.14 | 0.96 | 0.97 | 0.67 | - | - |
 
 - All 3 out-of-corpus questions are refused with the exact sentence, in every configuration:
   by the threshold (layer 1) for n78 and LTE-M in most reranked configurations, by the LLM
   (layer 2) otherwise. All 13 false refusals over the five configurations come from layer 2; the
   threshold never refused an in-corpus question.
 - **No invented section** in the reranked configurations: every citation points to a retrieved
-  passage (validity 1.00). Without the reranker, 3 to 6% of citations point outside the context.
-- `full` by type: faithfulness 0.95 / 0.92 / 0.88 and answer correctness 0.63 / 0.56 / 0.48 for
-  TS 23.501 / TS 24.501 / cross-spec questions. Only 3 of the 7 answered cross-spec questions
-  contain a citation in the required format, the weakest point of the system (see
+  passage (validity 1.00). Without the reranker, 3 to 5% of citations point outside the context.
+- `full` by type: faithfulness 0.95 / 0.92 / 0.86 and answer correctness 0.63 / 0.56 / 0.50 for
+  TS 23.501 / TS 24.501 / cross-spec questions. Every answered question now has a citation, but
+  on cross-spec questions only 53% of the citations match a gold section (77% and 62% on simple
+  TS 23.501 / TS 24.501 questions), the weakest point of the system (see
   [Error analysis](#error-analysis), case 4).
-- **Judge comparison** (25 shared answers): the same-family judge `gpt-oss-20b` scores
-  faithfulness +0.01 and answer correctness +0.03 higher than the Gemini judge (Pearson r 0.68 and
-  0.83). This is no sign of a large self-preference effect.
+- **Missing RAGAS scores:** the citation rewrite changed the text of 5 answers, which had to be
+  scored again. For 4 cross-spec answers (X-03, X-04, X-05, X-08) the Gemini judge stayed
+  unavailable ("high demand", HTTP 503) over several attempts, so 7 scores are missing:
+  faithfulness is averaged over 22 answers and answer correctness over 24 (cross-spec: 4 and 4).
+  `make eval-generation` computes them when the judge is available; all other scores are cached.
+- **Judge comparison** (20 shared answers): the same-family judge `gpt-oss-20b` scores
+  faithfulness and answer correctness +0.01 higher than the Gemini judge (Pearson r 0.63 and
+  0.86). This is no sign of a large self-preference effect.
 
 ![Citations per configuration](eval/results/chart_citations.png)
 
@@ -432,13 +444,18 @@ Failure cases of the `full` configuration (`generation_raw.jsonl`):
    holds connection management (23.501 §5.3.3.1), slice selection at registration (§5.15.5.2.1)
    and NAS security establishment (24.501 §4.4.2.5), all of which match "registration" and "NAS".
    The LLM refuses, in every configuration.
-4. **Citation format on cross-spec answers: X-04, X-08, X-03, X-05.** These answers are correct
-   in substance but cite passage numbers (`[1]`), a section without its spec (`[§5.3.6, …]`) or no
-   section at all. The checker counts only `(TS xx.xxx, §x.x)` citations, so these answers count
-   as "without citation". With two specs in the context, the model loses the required format more
-   often (3 of 7 answered cross-spec questions are correctly cited, vs 18 of 18 answered simple questions).
-   A fix would be to map `[n]` passage references to the n-th passage's (spec, section) after
-   generation.
+4. **Citation format on cross-spec answers: X-03, X-04, X-05, X-08.** With two specs in the
+   context, the model often drops the required `(TS xx.xxx, §x.x)` format. It cites passage numbers
+   (`[1]`, `[2][6]`), gpt-oss reference marks (`【2†L7-L12】`) or a section without its spec
+   (`[§5.3.6, …]`). The checker first counted these four answers as "without citation": only 3 of
+   the 7 answered cross-spec questions had a citation, against 18 of 18 simple questions. These
+   references are now rewritten as the citation of the passage they point to (see
+   [Generation, refusal and citations](#generation-refusal-and-citations)). All 7 answered
+   cross-spec questions now carry valid citations, each with at least one gold section. The
+   recovered citations point to passages that are not gold sections more often, so citation
+   correctness of `full` goes from 0.67 to 0.63, while answers with a citation go from 0.84 to
+   1.00. The model's habit itself is unchanged: a prompt that forbids passage numbers would need
+   new LLM calls for every answer.
 
 ## Limitations
 

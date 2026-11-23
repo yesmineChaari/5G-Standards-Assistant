@@ -122,3 +122,6 @@
 {"key": "f0e0d1382efc0b0f54f2fd87", "score": 0.6759406502126133, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the periodic registration update used for, and which timer triggers it i"}
 {"key": "40399348b5ad479af09285a5", "score": 0.7142857142857143, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is MICO mode and how does the UE request it in NAS signalling?"}
 {"key": "422f1151ebb93e387b65f099", "score": 0.5177389623976414, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is MICO mode and how does the UE request it in NAS signalling?"}
+{"key": "8fbaaf6a4ea52b074aafd10f", "score": 0.8333333333333334, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the periodic registration update used for, and which timer triggers it i"}
+{"key": "8ff03381f1369ec5e97986e4", "score": 0.6887458726231743, "metric": "answer_correctness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is the periodic registration update used for, and which timer triggers it i"}
+{"key": "ea7b331e8633575a5d144aad", "score": 0.7142857142857143, "metric": "faithfulness", "judge": "gemini:gemini-3.1-flash-lite", "question": "What is MICO mode and how does the UE request it in NAS signalling?"}

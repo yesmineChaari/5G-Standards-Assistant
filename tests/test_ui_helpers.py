@@ -27,8 +27,8 @@ def test_table_markdown_keeps_table() -> None:
 def test_highlight_valid_and_invalid_citations() -> None:
     answer = "X (TS 24.501, §A.1). Y (TS 24.501, §5.6.1.5 and §9.9.9)."
     out = highlight_citations(answer, [{"spec": "TS 24.501", "section": "9.9.9"}])
-    assert ":green[TS 24.501, §A.1]" in out
-    assert ":red[**TS 24.501, §5.6.1.5 and §9.9.9** ⚠]" in out
+    assert ":primary[**TS 24.501, §A.1**]" in out
+    assert ":red[**TS 24.501, §5.6.1.5 and §9.9.9**, not in the sources]" in out
     assert out.startswith("X (") and out.endswith(").")  # text around the citations is untouched
 
 

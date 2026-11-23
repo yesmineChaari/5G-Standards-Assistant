@@ -117,6 +117,86 @@ def check_citations(text: str, chunks: Sequence[dict[str, Any]]) -> CitationRepo
     return report
 
 
+# --------------------------------------------------------------------------- passage references
+#
+# The context passages are numbered ``[1] [TS 24.501 | Rel-18 | §A.1 | ...]``. Instead of the
+# requested ``(TS 24.501, §A.1)`` the model sometimes refers to a passage by its number or gives a
+# section without its spec:
+#
+#     ... the Requested NSSAI [1].        ... in the UE MM Core Network Capability IE [2][6].
+#     ... deregister the UE at any time【1†L9-L12】       (gpt-oss reference mark)
+#     ... sends a SERVICE REQUEST【2†§5.6.1.2.1】
+#     ... MICO indication IE [§5.3.6, "Mobile initiated connection only mode"].
+#
+# These references are unambiguous, so they are rewritten as standard citations: passage n becomes
+# the (spec, section) of the n-th passage given to the model, and a section without spec gets the
+# spec of the only retrieved passage with that section. A reference that cannot be resolved without
+# guessing (number out of range, section in no passage or in passages of both specs) is left as is
+# (bracket text) or removed (reference marks), so it is never counted as a citation.
+
+_MARK_RE = re.compile(r"(\s*)【([^】]*)】")
+_PASSAGE_MARK_RE = re.compile(r"^\s*(\d+)\s*†\s*(.*)$")
+_NUM_REF_RE = re.compile(r"(\s*)\[(\d+(?:\s*,\s*\d+)*)\]")
+_BARE_SECTION_RE = re.compile(rf"(\s*)[\[(]\s*§{{1,2}}\s*(?P<sec>{SECTION})[^\])]*[\])]")
+# A citation that ends right where a reference mark starts: the mark adds nothing.
+_ENDS_WITH_CITATION_RE = re.compile(rf"{SPEC}\s*,?\s*§{{1,2}}\s*{SECTION}[^()]*\)\s*$")
+
+
+def _chunk_sections(chunk: dict[str, Any]) -> set[str]:
+    return {chunk["section"], *(chunk.get("merged_sections") or [])}
+
+
+def _passage_citation(chunk: dict[str, Any], section: str | None = None) -> str:
+    """``(TS 24.501, §5.3.7)`` for a passage; ``section`` is kept only if the passage covers it."""
+    sec = section if section and section in _chunk_sections(chunk) else chunk["section"]
+    return f"({chunk['spec']}, §{sec})"
+
+
+def _unique_spec(section: str, chunks: Sequence[dict[str, Any]]) -> str | None:
+    specs = {c["spec"] for c in chunks if section in _chunk_sections(c)}
+    return specs.pop() if len(specs) == 1 else None
+
+
+def _convert_mark(m: re.Match[str], text: str, chunks: Sequence[dict[str, Any]] | None) -> str:
+    inner = m.group(2).strip()
+    passage = _PASSAGE_MARK_RE.match(inner)
+    content = passage.group(2) if passage else inner
+    if SPEC_RE.search(content):  # an explicit citation in the model's bracket style
+        return f" ({content.strip()})"
+    if not chunks or not passage:
+        return ""
+    n = int(passage.group(1))
+    if not 1 <= n <= len(chunks) or _ENDS_WITH_CITATION_RE.search(text[: m.start()]):
+        return ""  # unknown passage, or the mark only repeats the citation just before it
+    sec = SECTION_RE.search(content.split("§", 1)[1]) if "§" in content else None
+    return " " + _passage_citation(chunks[n - 1], sec.group(0) if sec else None)
+
+
+def resolve_references(text: str, chunks: Sequence[dict[str, Any]] | None = None) -> str:
+    """Rewrite passage references as standard citations (see the comment above).
+
+    Without ``chunks`` only the bracket style is normalised: ``【TS 24.501, §A.1】`` becomes
+    ``(TS 24.501, §A.1)`` and other reference marks are removed.
+    """
+    text = _MARK_RE.sub(lambda m: _convert_mark(m, m.string, chunks), text)
+    if not chunks:
+        return text.strip()
+
+    def numbered(m: re.Match[str]) -> str:
+        nums = [int(x) for x in re.findall(r"\d+", m.group(2))]
+        if not all(1 <= n <= len(chunks) for n in nums):
+            return m.group(0)
+        return " " + " ".join(dict.fromkeys(_passage_citation(chunks[n - 1]) for n in nums))
+
+    def bare(m: re.Match[str]) -> str:
+        spec = _unique_spec(m.group("sec"), chunks)
+        return f" ({spec}, §{m.group('sec')})" if spec else m.group(0)
+
+    text = _NUM_REF_RE.sub(numbered, text)
+    text = _BARE_SECTION_RE.sub(bare, text)
+    return text.strip()
+
+
 def has_spec_mention(text: str) -> bool:
     """True if the text names a spec at all (used to tell 'no citation' from 'unparsed citation')."""
     return bool(SPEC_RE.search(text))

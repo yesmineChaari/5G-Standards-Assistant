@@ -264,7 +264,7 @@ def write_md(path: Path, entries, configs, per_config, complete, judge_name, rag
         "" if all(complete.values()) else
         ("> **INCOMPLETE:** the LLM provider's quota was reached; configurations marked incomplete were not "
          "fully answered. Re-run the same command later to resume (cached answers are reused).\n"),
-        (f"> **INCOMPLETE RAGAS:** {ragas_missing} judge score(s) could not be computed (judge quota); the "
+        (f"> **INCOMPLETE RAGAS:** {ragas_missing} judge score(s) could not be computed (judge quota reached or judge unavailable); the "
          "`n=` next to each RAGAS mean is the number of answers actually scored. Re-run later to complete.\n")
         if ragas_missing else "",
         f"- Generator: `{cfg['llm']['provider']}:{cfg['llm']['model']}` (temperature {cfg['llm']['temperature']}, "

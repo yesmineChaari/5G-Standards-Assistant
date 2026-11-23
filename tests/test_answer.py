@@ -196,6 +196,50 @@ def test_bracket_citations_are_kept_in_standard_form() -> None:
     assert [c.section for c in extract_citations(out)] == ["A.1", "5.6.1.5"]
 
 
+PASSAGES = [
+    {"spec": "TS 23.501", "section": "5.15.2.1", "merged_sections": []},
+    {"spec": "TS 24.501", "section": "5.5.1.2.2", "merged_sections": ["5.5.1.2.3"]},
+    {"spec": "TS 24.501", "section": "5.3.6", "merged_sections": []},
+]
+
+
+def test_passage_numbers_become_citations() -> None:
+    from src.generate.answer import clean_answer
+
+    out = clean_answer("S-NSSAI identifies a slice [1]. The UE sends it [2][3]. Both [1, 2].", PASSAGES)
+    assert out == ("S-NSSAI identifies a slice (TS 23.501, §5.15.2.1). The UE sends it (TS 24.501, §5.5.1.2.2) "
+                   "(TS 24.501, §5.3.6). Both (TS 23.501, §5.15.2.1) (TS 24.501, §5.5.1.2.2).")
+
+
+def test_out_of_range_passage_number_is_left_as_is() -> None:
+    from src.generate.answer import clean_answer
+    from src.generate.citation_check import extract_citations
+
+    out = clean_answer("Value 7 [4].", PASSAGES)
+    assert out == "Value 7 [4]."
+    assert extract_citations(out) == []
+
+
+def test_reference_marks_resolve_to_their_passage() -> None:
+    from src.generate.answer import clean_answer
+
+    # alone: passage 2; with a section the passage covers: that section; repeat of a citation: removed
+    raw = ("X happens【2†L9-L12】. Y【2†§5.5.1.2.3】. Z【1†§9.9.9】. "
+           "W (TS 24.501, §5.3.6)【3†L1-L4】. V【9†L1】.")
+    assert clean_answer(raw, PASSAGES) == (
+        "X happens (TS 24.501, §5.5.1.2.2). Y (TS 24.501, §5.5.1.2.3). Z (TS 23.501, §5.15.2.1). "
+        "W (TS 24.501, §5.3.6). V.")
+
+
+def test_section_without_spec_gets_the_only_matching_spec() -> None:
+    from src.generate.answer import clean_answer
+
+    raw = 'MICO mode [§5.3.6, "Mobile initiated connection only mode"]. Other (§4.4.4).'
+    assert clean_answer(raw, PASSAGES) == "MICO mode (TS 24.501, §5.3.6). Other (§4.4.4)."
+    both = PASSAGES + [{"spec": "TS 23.501", "section": "5.3.6", "merged_sections": []}]
+    assert clean_answer("MICO [§5.3.6].", both) == "MICO [§5.3.6]."  # ambiguous: not guessed
+
+
 def test_ollama_unreachable_is_unavailable(monkeypatch) -> None:
     import requests
 
