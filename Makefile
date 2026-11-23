@@ -8,7 +8,7 @@ else
   BOOTSTRAP := python3.11
 endif
 
-.PHONY: install download ingest index app eval eval-retrieval eval-generation test all
+.PHONY: install download ingest index app eval eval-retrieval eval-generation tables test all
 
 install:
 	$(BOOTSTRAP) -m venv .venv
@@ -36,7 +36,10 @@ eval-retrieval:
 eval-generation:
 	$(PY) -m eval.run_generation_eval
 
-eval: eval-retrieval eval-generation
+tables:
+	$(PY) -m eval.make_tables
+
+eval: eval-retrieval eval-generation tables
 
 test:
 	$(PY) -m pytest -q tests

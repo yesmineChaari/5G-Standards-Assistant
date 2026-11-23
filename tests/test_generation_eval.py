@@ -95,3 +95,24 @@ def test_daily_limit_detection() -> None:
 
     assert is_daily_limit(Exception("Rate limit reached ... on tokens per day (TPD): Limit 200000"))
     assert not is_daily_limit(Exception("Rate limit reached ... on tokens per minute (TPM): Limit 8000"))
+    assert is_daily_limit(Exception("429 RESOURCE_EXHAUSTED quotaId: GenerateRequestsPerDayPerProjectPerModel-FreeTier"))
+    assert not is_daily_limit(Exception("429 quotaId: GenerateRequestsPerMinutePerProjectPerModel-FreeTier"))
+
+
+def test_judge_comparison_rows() -> None:
+    from eval.run_generation_eval import judge_comparison_rows
+
+    comp = [{"config": "full", "judge": "groq:j", "metric": "faithfulness", "current": c, "other": o}
+            for c, o in ((0.5, 0.7), (0.8, 1.0), (1.0, 1.0))]
+    (row,) = judge_comparison_rows(comp)
+    assert row[:4] == ["`full`", "faithfulness", "3", "0.77"]
+    assert row[5] == "+0.13" and row[6] == "0.13"
+    assert float(row[7]) > 0.9  # scores move together
+
+
+def test_cache_only_judge_never_calls(tmp_path, monkeypatch) -> None:
+    from eval import judge as judge_mod
+
+    monkeypatch.setattr(judge_mod, "CACHE_FILE", str(tmp_path / "ragas.jsonl"))
+    j = judge_mod.RagasJudge(provider="groq", model="m", cache_only=True)
+    assert j.score("faithfulness", "q", "a", ["c"]) is None and j.missing == 0 and j._metrics is None

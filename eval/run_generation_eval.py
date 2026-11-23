@@ -287,8 +287,26 @@ def aggregate(rows: list[dict[str, Any]]) -> dict[str, Any]:
 # --------------------------------------------------------------------------- report
 
 
+def judge_comparison_rows(comparison: list[dict[str, Any]]) -> list[list[str]]:
+    """Per (config, earlier judge, metric): n, both means, difference, mean |difference|, Pearson r."""
+    rows = []
+    keys = sorted({(c["config"], c["judge"], c["metric"]) for c in comparison})
+    for config, other, metric in keys:
+        pairs = [(c["current"], c["other"]) for c in comparison
+                 if (c["config"], c["judge"], c["metric"]) == (config, other, metric)]
+        a, b = [x for x, _ in pairs], [y for _, y in pairs]
+        n = len(pairs)
+        ma, mb = sum(a) / n, sum(b) / n
+        mad = sum(abs(x - y) for x, y in pairs) / n
+        va, vb = sum((x - ma) ** 2 for x in a), sum((y - mb) ** 2 for y in b)
+        r = sum((x - ma) * (y - mb) for x, y in pairs) / (va * vb) ** 0.5 if va > 0 and vb > 0 else None
+        rows.append([f"`{config}`", metric.replace("_", " "), str(n), fmt(ma, 2), f"{fmt(mb, 2)} (`{other}`)",
+                     f"{mb - ma:+.2f}", fmt(mad, 2), fmt(r, 2)])
+    return rows
+
+
 def write_md(path: Path, entries, configs, per_config, complete, judge_name, ragas_configs, cfg,
-             ragas_missing: int = 0) -> None:
+             ragas_missing: int = 0, comparison: list[dict[str, Any]] | None = None) -> None:
     bad = unverified_ids(entries)
     parts = [
         "# Generation evaluation\n",
@@ -317,9 +335,9 @@ def write_md(path: Path, entries, configs, per_config, complete, judge_name, rag
         "(factual F1 + semantic similarity); a refusal of an in-corpus question scores 0.",
         "- **Manual score:** mean of the team's grades in `manual_grading.csv` (0 wrong, 1 partial, 2 correct), "
         "configuration `full`.",
-        "- LLM latency of a cached call is the latency measured when the call was made. Calls made before "
-        "rate-limit waits were excluded from the measurement (configurations `full_no_rerank` and "
-        "`dense_only` in this run) include time spent waiting for the free-tier per-minute token limit, so "
+        "- LLM latency of a cached call is the latency measured when the call was made. Some calls were "
+        "made before rate-limit waits were excluded from the measurement (configurations `full_no_rerank` "
+        "and `dense_only` in this run); their latency includes time spent waiting for the free-tier per-minute token limit, so "
         "their LLM and total latency are overestimated; the model itself answers in about 2-4 s.\n",
         "## By configuration\n",
     ]
@@ -340,6 +358,16 @@ def write_md(path: Path, entries, configs, per_config, complete, judge_name, rag
 
     groups = [("simple_23501", "Simple TS 23.501"), ("simple_24501", "Simple TS 24.501"),
               ("cross_spec", "Cross-spec"), ("out_of_corpus", "Out of corpus")]
+    if comparison:
+        parts.append("## RAGAS judge comparison\n")
+        parts.append(f"The same answers and contexts scored by the current judge (`{judge_name}`) and by an "
+                     "earlier judge (cached scores, no new calls). A positive difference means the earlier judge "
+                     "scored higher. The earlier gpt-oss judge belongs to the generator's family, so a "
+                     "systematically higher score from it would indicate self-preference bias.\n")
+        parts.append(md_table(["Config", "Metric", "n", f"Mean (`{judge_name}`)", "Mean (earlier judge)",
+                               "Difference", "Mean abs. difference", "Pearson r"],
+                              judge_comparison_rows(comparison)) + "\n")
+
     for name in configs:
         if name != MANUAL_CONFIG and name not in ragas_configs:
             continue
@@ -384,6 +412,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--configs", nargs="+", choices=list(CONFIGS), default=ev.get("generation_configs"))
     parser.add_argument("--ragas-configs", nargs="*", choices=list(CONFIGS), default=ev.get("ragas_configs", ["full"]))
     parser.add_argument("--no-ragas", action="store_true")
+    parser.add_argument("--judge-provider", help="override evaluation.judge_provider")
+    parser.add_argument("--judge-model", help="override evaluation.judge_model")
     parser.add_argument("--testset", default=None)
     parser.add_argument("--limit", type=int, help="only the first N questions (smoke test)")
     parser.add_argument("--no-cache", action="store_true", help="recompute answers (LLM calls stay cached)")
@@ -415,12 +445,22 @@ def main(argv: list[str] | None = None) -> int:
     logger.info("LLM calls: %d new, %d from cache", runner.llm.misses, runner.llm.hits)
 
     judge = None
+    other_judges: list[Any] = []
+    comparison: list[dict[str, Any]] = []  # paired scores: current judge vs earlier judges
     ragas_configs = [] if args.no_ragas else [c for c in args.ragas_configs if c in records]
     if ragas_configs:
         from eval.judge import RagasJudge
 
-        judge = RagasJudge(cfg)
-        judge.check()
+        judge = RagasJudge(cfg, provider=args.judge_provider, model=args.judge_model)
+        try:
+            judge.check()
+        except Exception as exc:  # no key for the judge: answers and citations are still evaluated
+            logger.error("RAGAS judge %s unavailable (%s); RAGAS scores skipped", judge.name, exc)
+            judge.exhausted = True
+        for spec in ev.get("compare_judges") or []:
+            provider, _, model = spec.partition(":")
+            if f"{provider}:{model}" != judge.name:
+                other_judges.append(RagasJudge(cfg, provider=provider, model=model, cache_only=True))
 
     manual = read_manual(out / MANUAL_CSV)
     per_config: dict[str, dict[str, Any]] = {}
@@ -432,6 +472,12 @@ def main(argv: list[str] | None = None) -> int:
             ragas = {"faithfulness": None, "answer_correctness": None}
             if judge and name in ragas_configs:
                 ragas = apply_ragas(judge, rec, e)
+                for other in other_judges:
+                    prev = apply_ragas(other, rec, e)
+                    for metric in ("faithfulness", "answer_correctness"):
+                        if not rec["is_refusal"] and ragas[metric] is not None and prev[metric] is not None:
+                            comparison.append({"config": name, "judge": other.name, "metric": metric,
+                                               "current": ragas[metric], "other": prev[metric]})
             row = {**rec, "type": question_group(e), "cit": citation_stats(rec, e), "ragas": ragas,
                    "exact_refusal": rec["answer"] == cfg["refusal_message"],
                    "manual": manual.get((name, qid))}
@@ -454,13 +500,13 @@ def main(argv: list[str] | None = None) -> int:
         for line in raw_lines:
             f.write(json.dumps(line, ensure_ascii=False) + "\n")
     write_md(out / "generation_results.md", entries, args.configs, per_config, complete,
-             judge.name if judge else "-", ragas_configs, cfg, judge.missing if judge else 0)
+             judge.name if judge else "-", ragas_configs, cfg, judge.missing if judge else 0, comparison)
     print(f"\nWrote {out / 'generation_results.md'}, {out / 'generation_raw.jsonl'}, {out / MANUAL_CSV}")
     if unverified_ids(entries):
         print(f"WARNING: {len(unverified_ids(entries))} test-set entries are not verified; results are provisional.")
     if not all(complete.values()) or (judge and judge.missing):
-        print("INCOMPLETE: provider quota reached (answers and/or RAGAS scores missing). "
-              "Re-run the same command later to resume; everything computed so far is cached.")
+        print("INCOMPLETE: answers and/or RAGAS scores are missing (provider quota reached or judge "
+              "unavailable, see the log). Re-run the same command later; everything computed so far is cached.")
         return 3
     return 0
 

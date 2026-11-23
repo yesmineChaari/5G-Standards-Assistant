@@ -78,13 +78,17 @@ llm:
 refusal_message: "I could not find this information in the documents."
 seed: 42
 evaluation:
-  # RAGAS judge: a different (smaller) model than the generator, with its own API quota. Same family
-  # (gpt-oss), so some self-preference bias cannot be excluded; qwen3 was tried but its free tier
-  # allows only 1000 output tokens per minute, too few for RAGAS.
-  # Reached through an OpenAI-compatible endpoint (groq, openai or a local ollama server).
-  judge_provider: "groq"
-  judge_model: "openai/gpt-oss-20b"
-  judge_reasoning_effort: "low"
+  # RAGAS judge: a model from a different family than the generator (gpt-oss), to limit
+  # self-preference bias. Reached through an OpenAI-compatible endpoint (gemini, groq, openai, ollama).
+  # flash-lite: the free tier of the larger Gemini flash models allows only 20 requests per day,
+  # while RAGAS needs several requests per answer.
+  judge_provider: "gemini"
+  judge_model: "gemini-3.1-flash-lite"
+  judge_reasoning_effort: null
+  # Earlier judges whose cached scores are shown next to the current judge (no API calls).
+  # gpt-oss-20b: same family as the generator (qwen3 was tried first: its free tier allows only
+  # 1000 output tokens per minute, too few for RAGAS).
+  compare_judges: ["groq:openai/gpt-oss-20b"]
   # RAGAS costs about 8k judge tokens per answer; on free API tiers it runs on these configs only.
   ragas_configs: ["full"]
   generation_configs: ["full", "hybrid_rerank", "full_no_hybrid", "full_no_rerank", "dense_only"]

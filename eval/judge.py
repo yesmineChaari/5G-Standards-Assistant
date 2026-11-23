@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 CACHE_FILE = "eval/cache/ragas.jsonl"
 BASE_URLS = {
     "groq": "https://api.groq.com/openai/v1",
+    "gemini": "https://generativelanguage.googleapis.com/v1beta/openai/",  # Gemini's OpenAI-compatible API
     "openai": None,  # library default
     "ollama": os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/") + "/v1",
 }
@@ -55,12 +56,13 @@ class RagasJudge:
     """Faithfulness (answer vs contexts) and answer correctness (answer vs reference)."""
 
     def __init__(self, cfg: dict[str, Any] | None = None, provider: str | None = None,
-                 model: str | None = None) -> None:
+                 model: str | None = None, cache_only: bool = False) -> None:
         self.cfg = cfg or load_config()
         ev = self.cfg.get("evaluation", {})
         self.provider = provider or ev.get("judge_provider", "groq")
         self.model = model or ev.get("judge_model", "openai/gpt-oss-20b")
-        self.reasoning_effort = ev.get("judge_reasoning_effort")
+        self.reasoning_effort = ev.get("judge_reasoning_effort") if provider is None else None
+        self.cache_only = cache_only  # read cached scores only (e.g. a previous judge, for comparison)
         self.name = f"{self.provider}:{self.model}"
         self.cache_path = resolve_path(CACHE_FILE)
         self.cache = self._load_cache()
@@ -93,7 +95,7 @@ class RagasJudge:
     # ------------------------------------------------------------------ ragas
 
     def check(self) -> None:
-        if self.provider in ("groq", "openai") and not get_api_key(self.provider):
+        if self.provider in ("groq", "openai", "gemini") and not get_api_key(self.provider):
             from src.generate.llm import LLMUnavailable
 
             raise LLMUnavailable(f"no API key for the judge provider {self.provider}")
@@ -127,8 +129,9 @@ class RagasJudge:
         key = self._key(metric, question, answer, contexts, reference)
         if key in self.cache:
             return self.cache[key]
-        if self.exhausted:
-            self.missing += 1
+        if self.exhausted or self.cache_only:
+            if not self.cache_only:
+                self.missing += 1
             return None
         from ragas import SingleTurnSample
 
@@ -155,9 +158,10 @@ class RagasJudge:
 
 
 def is_daily_limit(exc: BaseException) -> bool:
-    """True for a per-day token/request quota error (e.g. Groq "tokens per day (TPD)")."""
+    """True for a per-day token/request quota error (Groq "tokens per day (TPD)", Gemini "...PerDay...")."""
     text = str(exc)
-    return "per day" in text.lower() or "(TPD)" in text or "(RPD)" in text
+    low = text.lower()
+    return "per day" in low or "perday" in low or "(TPD)" in text or "(RPD)" in text
 
 
 def cache_path() -> Path:
