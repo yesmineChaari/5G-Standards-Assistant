@@ -79,9 +79,12 @@ class GenerationRunner:
         self.pipeline = Pipeline(cfg, llm_classifier=self.llm.classify)
         self.answerer = Answerer(cfg, llm=self.llm, pipeline=self.pipeline)
         self.use_cache = use_cache
+        settings = {k: cfg[k] for k in ("retrieval", "reranker", "embeddings", "bm25", "llm", "refusal_message")}
+        if cfg["llm"]["provider"] != "ollama":  # the local context window does not affect API models
+            settings["llm"] = {k: v for k, v in cfg["llm"].items() if k != "ollama_num_ctx"}
         self.base_key = _hash({
             "chunks": file_sha256(resolve_path(cfg["paths"]["chunks_file"])),
-            "settings": {k: cfg[k] for k in ("retrieval", "reranker", "embeddings", "bm25", "llm", "refusal_message")},
+            "settings": settings,
             "code": _code_hash(),
         })
 

@@ -2,8 +2,9 @@
 #   10 simple TS 23.501 (S23-*), 10 simple TS 24.501 (S24-*), 8 cross-spec (X-*), 3 out-of-corpus (OOC-*).
 #
 # Gold sections and reference answers were proposed with scripts/find_sections.py from the parsed
-# spec text (TS 23.501 v18.12.0, TS 24.501 v18.14.0). They are CANDIDATES until a team member has
-# read the cited clauses in the .docx and set `verified: true`.
+# spec text (TS 23.501 v18.12.0, TS 24.501 v18.14.0), then checked against the text of the cited
+# clauses: `verified: true` marks an entry whose gold sections contain the answer and whose
+# reference answer states only facts of those clauses.
 #
 # Matching rule used by the retrieval evaluation: a retrieved chunk is relevant if it has the same
 # spec as a gold section and its section equals the gold section, is a sub-section of it, or the
@@ -26,7 +27,7 @@
     profiles and supports SCP discovery, notifies subscribed consumers about newly registered,
     updated or deregistered NF and SCP instances, supports P-CSCF discovery, and maintains the
     health status of NFs and SCPs.
-  verified: false
+  verified: true
 
 - id: "S23-02"
   type: "simple"
@@ -41,7 +42,7 @@
     access authorization. It transports SM messages between the UE and the SMF (transparent proxy),
     SMS messages between the UE and the SMSF, and location services messages, and it provides the
     Security Anchor Functionality (SEAF).
-  verified: false
+  verified: true
 
 - id: "S23-03"
   type: "simple"
@@ -55,7 +56,7 @@
     classifier, branching point), packet inspection, the user-plane part of policy rule
     enforcement (gating, redirection, traffic steering), lawful intercept (UP collection), and can
     allocate the UE IP address/prefix in response to an SMF request.
-  verified: false
+  verified: true
 
 - id: "S23-04"
   type: "simple"
@@ -65,9 +66,9 @@
     - {spec: "TS 23.501", section: "4.2.7"}
     - {spec: "TS 23.501", section: "8.2.3.2"}
   reference_answer: >-
-    N4 is the reference point between the SMF and the UPF. The SMF uses it to control the UPF
-    (N4 sessions); the control plane protocol for the SMF-UPF interface is defined in TS 29.244.
-  verified: false
+    N4 is the reference point between the SMF and the UPF. The control plane protocol for the
+    SMF-UPF interface (N4 reference point) is defined in TS 29.244.
+  verified: true
 
 - id: "S23-05"
   type: "simple"
@@ -82,7 +83,7 @@
     (scheduling weights, admission thresholds, queue management thresholds, link layer protocol
     configuration). Standardized 5QI values map one-to-one to standardized combinations of 5G QoS
     characteristics (Table 5.7.4-1).
-  verified: false
+  verified: true
 
 - id: "S23-06"
   type: "simple"
@@ -95,7 +96,7 @@
     refers to the expected Network Slice behaviour in terms of features and services, and an
     optional Slice Differentiator (SD), which complements the SST to differentiate amongst
     multiple Network Slices of the same Slice/Service Type.
-  verified: false
+  verified: true
 
 - id: "S23-07"
   type: "simple"
@@ -111,7 +112,7 @@
     user plane can be visible to the UE but the network ensures no loss of connectivity: a
     connection through a new PDU Session Anchor is established before the previous one is
     terminated. The SSC mode of a PDU Session does not change during its lifetime.
-  verified: false
+  verified: true
 
 - id: "S23-08"
   type: "simple"
@@ -124,7 +125,7 @@
     UE, determines the Allowed NSSAI and the Configured NSSAI (and, if needed, their mapping to the
     Subscribed S-NSSAIs), and determines the AMF Set to be used to serve the UE (or a list of
     candidate AMFs, possibly by querying the NRF).
-  verified: false
+  verified: true
 
 - id: "S23-09"
   type: "simple"
@@ -137,7 +138,7 @@
     identified by a QoS Flow ID (QFI), carried in an encapsulation header on N3/N9; traffic with
     the same QFI in a PDU Session receives the same forwarding treatment. The 5G QoS model supports
     GBR and Non-GBR QoS Flows, and the QFI is unique within a PDU Session.
-  verified: false
+  verified: true
 
 - id: "S23-10"
   type: "simple"
@@ -149,7 +150,7 @@
     The Policy Control Function supports a unified policy framework to govern network behaviour,
     provides policy rules to control plane functions to enforce them, and accesses subscription
     information relevant for policy decisions in the UDR (located in the same PLMN).
-  verified: false
+  verified: true
 
 # ----------------------------------------------------------------------------- TS 24.501 (simple)
 
@@ -165,7 +166,7 @@
     cannot derive the UE's identity from the 5G-GUTI or 5G-S-TMSI, e.g. because no matching
     identity/context exists in the network or because of an integrity check failure of the
     received message.
-  verified: false
+  verified: true
 
 - id: "S24-02"
   type: "simple"
@@ -180,7 +181,7 @@
     message is received. Its value is 15 s (85 s in WB-N1/CE mode, 27 s for access via a satellite
     NG-RAN cell). On expiry the UE starts T3511 or T3502 as specified in clause 5.5.1.2.7 (initial
     registration) or 5.5.1.3.7 (mobility and periodic registration update).
-  verified: false
+  verified: true
 
 - id: "S24-03"
   type: "simple"
@@ -192,18 +193,18 @@
     The REGISTRATION REQUEST message (UE to network) contains as mandatory IEs: Extended protocol
     discriminator, Security header type, Spare half octet, Registration request message identity,
     5GS registration type, ngKSI (NAS key set identifier) and 5GS mobile identity.
-  verified: false
+  verified: true
 
 - id: "S24-04"
   type: "simple"
   question: "What are the main 5GMM states of the UE?"
   expected_spec: ["TS 24.501"]
   gold_sections:
-    - {spec: "TS 24.501", section: "5.1.3.2.1"}
+    - {spec: "TS 24.501", section: "5.1.3.2.1.2"}
   reference_answer: >-
     The 5GMM main states in the UE are 5GMM-NULL, 5GMM-DEREGISTERED, 5GMM-REGISTERED-INITIATED,
     5GMM-REGISTERED, 5GMM-DEREGISTERED-INITIATED and 5GMM-SERVICE-REQUEST-INITIATED.
-  verified: false
+  verified: true
 
 - id: "S24-05"
   type: "simple"
@@ -217,7 +218,7 @@
     established without user-plane resources, or, for a UE using control plane CIoT 5GS
     optimization in 5GMM-IDLE, to initiate transfer of user data via the control plane. It is used
     e.g. when the network has downlink signalling pending and the UE is in 5GMM-IDLE mode.
-  verified: false
+  verified: true
 
 - id: "S24-06"
   type: "simple"
@@ -229,7 +230,7 @@
   reference_answer: >-
     5GSM cause #26 "Insufficient resources" is used by the UE or by the network to indicate that
     the requested service cannot be provided due to insufficient resources.
-  verified: false
+  verified: true
 
 - id: "S24-07"
   type: "simple"
@@ -243,7 +244,7 @@
     corresponding 5G NAS keys and 5G NAS security algorithms. The network may also use it to change
     the 5G NAS security algorithms of a context in use, to change the uplink NAS COUNT value, or to
     provide the selected EPS NAS security algorithms to the UE.
-  verified: false
+  verified: true
 
 - id: "S24-08"
   type: "simple"
@@ -256,7 +257,7 @@
     updating, periodic registration updating, emergency registration, SNPN onboarding
     registration, disaster roaming mobility registration updating and disaster roaming initial
     registration. The IE also carries the follow-on request (FOR) bit.
-  verified: false
+  verified: true
 
 - id: "S24-09"
   type: "simple"
@@ -267,7 +268,7 @@
   reference_answer: >-
     The 5GS mobile identity IE provides either the SUCI, the 5G-GUTI, the IMEI, the IMEISV, the
     5G-S-TMSI, the MAC address or the EUI-64. It is a type 6 IE with a minimum length of 4 octets.
-  verified: false
+  verified: true
 
 - id: "S24-10"
   type: "simple"
@@ -279,7 +280,7 @@
   reference_answer: >-
     5GMM cause #7 "5GS services not allowed" is sent to the UE when it is not allowed to operate
     5GS services.
-  verified: false
+  verified: true
 
 # ----------------------------------------------------------------------------- cross-spec
 
@@ -297,7 +298,7 @@
     in the UDM), and the identifier of the serving AMF is registered in the UDM (TS 23.501). In
     NAS, the UE in 5GMM-DEREGISTERED sends a REGISTRATION REQUEST message to the AMF; if the
     registration is accepted, the AMF sends a REGISTRATION ACCEPT message to the UE (TS 24.501).
-  verified: false
+  verified: true
 
 - id: "X-02"
   type: "cross_spec"
@@ -314,7 +315,7 @@
     control of the UPF (TS 23.501). The UE initiates the procedure with a PDU SESSION ESTABLISHMENT
     REQUEST message; if the connectivity with the requested DN is accepted, the SMF creates a PDU
     SESSION ESTABLISHMENT ACCEPT message, which includes the authorized QoS rules (TS 24.501).
-  verified: false
+  verified: true
 
 - id: "X-03"
   type: "cross_spec"
@@ -330,7 +331,7 @@
     message whose De-registration type IE indicates whether it is a "switch off" and for which
     access(es); unless it is a switch off, the AMF answers with a DEREGISTRATION ACCEPT message,
     and the UE then stops timer T3521 (TS 24.501).
-  verified: false
+  verified: true
 
 - id: "X-04"
   type: "cross_spec"
@@ -347,7 +348,7 @@
     (TS 23.501). In NAS, the Requested NSSAI IE is included in the REGISTRATION REQUEST message
     when the registration type is initial registration or mobility registration updating, under
     the conditions of clauses 5.5.1.2.2 and 5.5.1.3.2; it is coded with the NSSAI IE (TS 24.501).
-  verified: false
+  verified: true
 
 - id: "X-05"
   type: "cross_spec"
@@ -363,7 +364,7 @@
     NAS, the UE sends a SERVICE REQUEST message to the AMF, starts timer T3517 and enters
     5GMM-SERVICE-REQUEST-INITIATED; the procedure moves the UE from 5GMM-IDLE to 5GMM-CONNECTED or
     requests user-plane resources for PDU sessions (TS 24.501).
-  verified: false
+  verified: true
 
 - id: "X-06"
   type: "cross_spec"
@@ -381,7 +382,7 @@
     indication of whether it is the default QoS rule, a QoS rule identifier (QRI), a QFI,
     optionally a set of packet filters, and a precedence value; it is carried in the QoS rules IE
     (TS 24.501).
-  verified: false
+  verified: true
 
 - id: "X-07"
   type: "cross_spec"
@@ -400,7 +401,7 @@
     expires in 5GMM-IDLE mode, the UE sends a REGISTRATION REQUEST for mobility and periodic
     registration update; the AMF supervises the UE with an implicit de-registration timer
     (TS 24.501).
-  verified: false
+  verified: true
 
 - id: "X-08"
   type: "cross_spec"
@@ -415,9 +416,11 @@
     during Initial Registration or Mobility Registration Update, and the AMF decides (based on
     local configuration, subscription, UE preference, policies, etc.) whether MICO mode is allowed
     and indicates it during registration (TS 23.501). In NAS, the UE requests it by including the
-    MICO indication IE in the REGISTRATION REQUEST message; it shall not request MICO mode over
-    non-3GPP access or for emergency registration (TS 24.501).
-  verified: false
+    MICO indication IE in the REGISTRATION REQUEST message. It shall not request MICO mode over
+    non-3GPP access, nor, over 3GPP access, during a registration for emergency services, to
+    initiate an emergency PDU session, or when an emergency PDU session is established. The network
+    accepts it by providing a MICO indication when it accepts the registration (TS 24.501).
+  verified: true
 
 # ----------------------------------------------------------------------------- out of corpus
 
@@ -429,7 +432,7 @@
   reference_answer: "I could not find this information in the documents."
   absent_terms: ["n78", "3300 MHz", "frequency range"]
   notes: "Defined in TS 38.101-1, not in the corpus."
-  verified: false
+  verified: true
 
 - id: "OOC-02"
   type: "out_of_corpus"
@@ -439,7 +442,7 @@
   reference_answer: "I could not find this information in the documents."
   absent_terms: ["Wi-Fi 7", "Wi-Fi", "802.11be", "multi-link"]
   notes: "IEEE 802.11be. Hard case: the reranker scores MPQUIC (multi-path) chunks high."
-  verified: false
+  verified: true
 
 - id: "OOC-03"
   type: "out_of_corpus"
@@ -449,4 +452,4 @@
   reference_answer: "I could not find this information in the documents."
   absent_terms: ["modulation", "QPSK", "16QAM", "64QAM"]
   notes: "Near-domain: 'LTE-M' itself occurs in TS 23.501 (RAT type), but nothing about modulation."
-  verified: false
+  verified: true

@@ -75,6 +75,7 @@ llm:
   reasoning_effort: "low"   # sent only to reasoning models (gpt-oss, o-series); null to disable
   max_retries: 3
   backoff_s: 2.0
+  ollama_num_ctx: 8192      # local models: context window; the prompt with 6 passages needs ~4-5k tokens
 refusal_message: "I could not find this information in the documents."
 seed: 42
 evaluation:
@@ -93,3 +94,12 @@ evaluation:
   # the ablations compare like with like.
   ragas_configs: ["full", "hybrid_rerank", "full_no_hybrid", "full_no_rerank", "dense_only"]
   generation_configs: ["full", "hybrid_rerank", "full_no_hybrid", "full_no_rerank", "dense_only"]
+  # Model comparison (eval/run_model_comparison.py). Generators answer from the passages of `full`.
+  # llama3.2:3b: a local model that fits in 4 GB of GPU memory with an 8k context.
+  compare_llms: ["ollama:llama3.2:3b"]
+  # Embedding models, each with its own index: a smaller model of the same family, and a model of
+  # another family of the same size (gte needs no query instruction and no passage prefix).
+  compare_embeddings:
+    - {model: "BAAI/bge-small-en-v1.5", query_instruction: "Represent this sentence for searching relevant passages: "}
+    - {model: "thenlper/gte-base", query_instruction: ""}
+  embedding_compare_configs: ["dense_only", "full"]

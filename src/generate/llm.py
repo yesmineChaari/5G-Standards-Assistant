@@ -44,6 +44,7 @@ class LLM:
         backoff_s: float = 2.0,
         reasoning_effort: str | None = None,
         classify_max_tokens: int = 512,
+        ollama_num_ctx: int = 8192,
     ) -> None:
         provider = provider.lower()
         if provider not in PROVIDERS:
@@ -57,6 +58,9 @@ class LLM:
         self.backoff_s = backoff_s
         self.reasoning_effort = reasoning_effort
         self.classify_max_tokens = classify_max_tokens
+        # Ollama's default context window (2k-4k tokens, depending on the version) is shorter than
+        # the prompt (6 passages of up to 480 tokens): the start of the prompt would be cut silently.
+        self.ollama_num_ctx = ollama_num_ctx
         # 429 handling: wait as long as the provider asks (up to max_rate_wait_s, max_rate_waits times);
         # a longer wait (daily limit) raises RateLimitExhausted.
         self.max_rate_wait_s = 120.0
@@ -81,6 +85,7 @@ class LLM:
             backoff_s=c.get("backoff_s", 2.0),
             reasoning_effort=c.get("reasoning_effort"),
             classify_max_tokens=c.get("classify_max_tokens", 512),
+            ollama_num_ctx=c.get("ollama_num_ctx", 8192),
         )
 
     @property
@@ -210,7 +215,8 @@ class LLM:
             resp = self._client.chat(
                 model=self.model,
                 messages=messages,
-                options={"temperature": temperature, "num_predict": max_tokens, "seed": self.seed or 0},
+                options={"temperature": temperature, "num_predict": max_tokens, "seed": self.seed or 0,
+                         "num_ctx": self.ollama_num_ctx},
             )
         except ollama.ResponseError as exc:
             if exc.status_code == 404:  # model not pulled

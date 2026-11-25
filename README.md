@@ -280,9 +280,12 @@ absent from the corpus. Gold sections were located with `scripts/find_sections.p
 (full-text search in the parsed specs); `scripts/find_sections.py check` verifies that every gold
 section exists.
 
-> **Status:** every entry still has `verified: false`, so all results below are **provisional**
-> until each gold section and reference answer has been checked by a person. Every report
-> repeats this warning.
+**Checking the test set.** Each entry was checked against the text of its gold clauses: the
+gold sections must contain the answer, and the reference answer may state only facts of those
+clauses. Three entries were corrected: S23-04 (a fact absent from the clause removed from the
+reference answer), S24-04 (gold section narrowed from §5.1.3.2.1, which also covers the 5GMM
+sub-states, to §5.1.3.2.1.2, the main states) and X-08 (the conditions under which MICO mode may
+not be requested, stated as in §5.3.6). All entries now have `verified: true`.
 
 ### Section matching rule
 
@@ -328,22 +331,22 @@ Full reports: [`retrieval_results.md`](eval/results/retrieval_results.md),
 [`routing_results.md`](eval/results/routing_results.md),
 [`generation_results.md`](eval/results/generation_results.md),
 [`ablation_summary.md`](eval/results/ablation_summary.md); per-question data in
-`retrieval_raw.jsonl` and `generation_raw.jsonl`. *Provisional: test set not yet verified.*
+`retrieval_raw.jsonl` and `generation_raw.jsonl`.
 
 ### Retrieval (28 in-corpus questions)
 
 | Config | Components | R@5 | R@5 95% CI | R@10 | Hit@5 | MRR | Cross-spec both relevant@5 |
 |---|---|---|---|---|---|---|---|
-| `bm25_only` | BM25 only | 0.574 | 0.42–0.73 | 0.610 | 0.714 | 0.536 | 0.250 |
+| `bm25_only` | BM25 only | 0.574 | 0.42–0.73 | 0.610 | 0.714 | 0.527 | 0.250 |
 | `dense_only` | dense | 0.723 | 0.60–0.85 | 0.786 | 0.929 | 0.759 | 0.375 |
 | `hybrid` | dense + BM25 (RRF) | 0.667 | 0.53–0.79 | 0.795 | 0.857 | 0.691 | 0.375 |
-| `hybrid_rerank` | + reranker | 0.744 | 0.62–0.87 | 0.774 | 0.929 | 0.747 | 0.250 |
-| **`full`** | + routing, acronyms | **0.744** | 0.62–0.87 | 0.795 | 0.929 | 0.764 | 0.375 |
-| `full_no_hybrid` | full without BM25 | 0.744 | 0.62–0.86 | 0.753 | 0.929 | 0.775 | 0.375 |
+| `hybrid_rerank` | + reranker | 0.708 | 0.57–0.84 | 0.774 | 0.893 | 0.733 | 0.250 |
+| **`full`** | + routing, acronyms | **0.708** | 0.57–0.83 | 0.795 | 0.893 | 0.750 | 0.375 |
+| `full_no_hybrid` | full without BM25 | 0.708 | 0.58–0.83 | 0.753 | 0.893 | 0.762 | 0.375 |
 | `full_no_rerank` | full without reranker | 0.643 | 0.50–0.78 | 0.750 | 0.857 | 0.735 | 0.125 |
-| `full_no_acronyms` | full without acronyms | 0.762 | 0.63–0.88 | 0.795 | 0.929 | 0.769 | 0.250 |
+| `full_no_acronyms` | full without acronyms | 0.726 | 0.59–0.86 | 0.795 | 0.893 | 0.755 | 0.250 |
 
-By question type (`full`, R@5): TS 23.501 1.00, TS 24.501 0.80, cross-spec 0.35. Routing
+By question type (`full`, R@5): TS 23.501 1.00, TS 24.501 0.70, cross-spec 0.35. Routing
 accuracy (exact): 1.00 on simple questions, 0.625 on cross-spec questions (3 of 8 routed to a
 single spec).
 
@@ -355,9 +358,9 @@ single spec).
 |---|---|---|---|---|---|---|---|
 | **`full`** | 1.00 | 0.11 | 1.00 | 1.00 | 0.63 | 0.88 | 0.52 |
 | `hybrid_rerank` | 1.00 | 0.11 | 1.00 | 1.00 | 0.61 | 0.90 | 0.52 |
-| `full_no_hybrid` | 1.00 | 0.07 | 1.00 | 1.00 | 0.59 | 0.87 | 0.53 |
-| `full_no_rerank` | 1.00 | 0.04 | 1.00 | 0.95 | 0.61 | 0.86 | 0.59 |
-| `dense_only` | 1.00 | 0.14 | 0.96 | 0.97 | 0.67 | 0.90 | 0.50 |
+| `full_no_hybrid` | 1.00 | 0.07 | 1.00 | 1.00 | 0.57 | 0.87 | 0.53 |
+| `full_no_rerank` | 1.00 | 0.04 | 1.00 | 0.95 | 0.61 | 0.86 | 0.58 |
+| `dense_only` | 1.00 | 0.14 | 0.96 | 0.97 | 0.64 | 0.90 | 0.50 |
 
 Faithfulness is averaged over the answered in-corpus questions (24 to 27 per configuration),
 answer correctness over all 28 in-corpus questions (a refusal scores 0).
@@ -368,15 +371,15 @@ answer correctness over all 28 in-corpus questions (a refusal scores 0).
   threshold never refused an in-corpus question.
 - **No invented section** in the reranked configurations: every citation points to a retrieved
   passage (validity 1.00). Without the reranker, 3 to 5% of citations point outside the context.
-- `full` by type: faithfulness 0.95 / 0.88 / 0.79 and answer correctness 0.62 / 0.47 / 0.44 for
+- `full` by type: faithfulness 0.95 / 0.88 / 0.79 and answer correctness 0.61 / 0.47 / 0.46 for
   TS 23.501 / TS 24.501 / cross-spec questions. Every answered question now has a citation, but
   on cross-spec questions only 53% of the citations match a gold section (77% and 62% on simple
   TS 23.501 / TS 24.501 questions), the weakest point of the system (see
   [Error analysis](#error-analysis), case 4).
 - **Judge comparison** (`full`, answers scored by both judges): the earlier judges score higher
   than `gemini-3.5-flash-lite`. Faithfulness: +0.03 for both `gemini-3.1-flash-lite` (22 answers,
-  Pearson r 0.95) and `gpt-oss-20b` (20 answers, r 0.68). Answer correctness: +0.07 (21 answers,
-  r 0.67) and +0.08 (20 answers, r 0.68). The same-family judge is not more lenient than the other
+  Pearson r 0.95) and `gpt-oss-20b` (20 answers, r 0.68). Answer correctness: +0.07 (20 answers,
+  r 0.67) and +0.08 (19 answers, r 0.69). The same-family judge is not more lenient than the other
   Gemini judge, so there is no sign of a large self-preference effect. Absolute RAGAS values
   depend on the judge (by up to 0.08 on average); only comparisons made with the same judge are
   meaningful.
@@ -387,11 +390,11 @@ answer correctness over all 28 in-corpus questions (a refusal scores 0).
 
 | Component removed | Δ Recall@5 | Δ MRR | Δ Both specs@5 (cross-spec) | Δ False refusals | Δ Faithfulness | Δ Answer correctness |
 |---|---|---|---|---|---|---|
-| Hybrid search (BM25 + RRF) | +0.000 [-0.05, +0.05] | +0.011 [-0.04, +0.07] | +0.000 | -0.036 [-0.14, +0.07] | +0.019 [-0.02, +0.06] | +0.013 [-0.07, +0.10] |
-| **Reranker** | **-0.101 [-0.17, -0.04] \*** | -0.029 [-0.18, +0.12] | +0.000 | -0.071 [-0.18, +0.00] | -0.019 [-0.10, +0.05] | +0.074 [-0.02, +0.18] |
-| Routing | +0.000 [-0.03, +0.03] | -0.017 [-0.07, +0.02] | +0.250 [-0.25, +0.62] | +0.000 | +0.022 [-0.01, +0.07] | +0.000 [-0.06, +0.06] |
-| Acronym expansion | +0.018 [-0.02, +0.06] | +0.005 [+0.00, +0.01] | +0.000 | - | - | - |
-| All three (→ `dense_only`) | -0.021 [-0.14, +0.10] | -0.005 [-0.20, +0.18] | +0.375 [+0.12, +0.75] \* | +0.036 [-0.14, +0.21] | +0.040 [-0.05, +0.13] | -0.018 [-0.14, +0.11] |
+| Hybrid search (BM25 + RRF) | +0.000 [-0.05, +0.05] | +0.012 [-0.04, +0.07] | +0.000 | -0.036 [-0.14, +0.07] | +0.019 [-0.02, +0.06] | +0.012 [-0.08, +0.10] |
+| Reranker | -0.065 [-0.16, +0.04] | -0.014 [-0.17, +0.14] | +0.000 | -0.071 [-0.18, +0.00] | -0.019 [-0.10, +0.05] | +0.067 [-0.03, +0.18] |
+| Routing | +0.000 [-0.03, +0.03] | -0.017 [-0.07, +0.02] | +0.250 [-0.25, +0.62] | +0.000 | +0.022 [-0.01, +0.07] | -0.002 [-0.07, +0.06] |
+| Acronym expansion | +0.018 [-0.02, +0.06] | +0.006 [+0.00, +0.02] | +0.000 | - | - | - |
+| All three (→ `dense_only`) | +0.015 [-0.11, +0.16] | +0.009 [-0.19, +0.19] | **+0.375 [+0.12, +0.75] \*** | +0.036 [-0.14, +0.21] | +0.040 [-0.05, +0.13] | -0.021 [-0.14, +0.10] |
 
 RAGAS deltas are paired over the questions scored in both configurations (faithfulness: 21 to 25
 answers refused by neither; answer correctness: all 28 in-corpus questions).
@@ -399,17 +402,21 @@ answers refused by neither; answer correctness: all 28 in-corpus questions).
 ![Ablation deltas](eval/results/chart_ablation.png)
 
 **Reading.**
-- The **reranker** is the only component with a significant effect on recall (+0.10 R@5).
-  Without it, false refusals drop from 0.11 to 0.04 (not significant). These refusals are LLM
-  decisions on different contexts, not threshold refusals (case 2 below).
+- **No single component changes recall significantly.** The reranker gives the largest gain
+  (+0.065 R@5, CI -0.04 to +0.16). Without it, false refusals drop from 0.11 to 0.04 (not
+  significant). These refusals are LLM decisions on different contexts, not threshold refusals
+  (case 2 below). Dense retrieval alone (`dense_only`, 0.723) is as good as the full system
+  (0.708) on recall.
 - **Hybrid search** brings no measurable gain on this test set: dense retrieval alone reaches the
   same recall, and BM25 alone is the weakest configuration.
 - **Routing** does not change recall on simple questions. On cross-spec questions it reduces
   coverage: 3 of 8 were routed to a single spec, and without routing both specs appear in the
-  top 5 more often (+0.25, not significant).
+  top 5 more often (+0.25, not significant). The only significant difference of the ablations
+  is of this kind: `dense_only`, which searches both specs, has both specs in the top 5 of all
+  8 cross-spec questions, against 5 of 8 for `full` (+0.375).
 - **Acronym expansion** has no measurable effect.
 - **Answer quality (RAGAS)** does not differ significantly between configurations. The largest
-  change is answer correctness without the reranker (+0.07, not significant), which matches its
+  change is answer correctness without the reranker (+0.067, not significant), which matches its
   fewer false refusals (a refusal scores 0).
 - With 28 questions (8 cross-spec), effects smaller than about 0.05 to 0.10 cannot be detected.
 
@@ -472,8 +479,9 @@ Failure cases of the `full` configuration (`generation_raw.jsonl`):
   captions remain (case 1 above).
 - **Very large tables** (IE codings, cause lists) are split across chunks. The header row is
   repeated, but the context around the table may be in another chunk (case 2).
-- **Small test set:** 31 questions (8 cross-spec, 3 out-of-corpus) only detect large differences,
-  and its gold sections are not yet verified by a person.
+- **Small test set:** 31 questions (8 cross-spec, 3 out-of-corpus) only detect large differences.
+  One gold section (S24-04) changed the significance of the reranker's recall gain, which shows
+  how sensitive the conclusions are at this size.
 - **LLM-as-judge:** RAGAS scores depend on the judge model (a lightweight Gemini model, because
   of free-tier quotas) and its parsing of claims. The three judges correlate on single answers
   (Pearson r 0.68 to 0.95 for faithfulness, 0.67 to 0.68 for answer correctness) but differ by up
@@ -494,7 +502,7 @@ Failure cases of the `full` configuration (`generation_raw.jsonl`):
   stored in every chunk.
 - Improve cross-spec questions: always search both specs when the question mixes architecture
   and protocol terms, or decompose the question into one sub-question per spec.
-- Larger, human-verified test set and a manual grading of the answers to calibrate RAGAS.
+- A larger test set and a manual grading of the answers to calibrate RAGAS.
 - Multilingual questions (e.g. French) with a multilingual embedding model such as `bge-m3`.
 - GPU or a smaller reranker for interactive latency.
 
@@ -531,6 +539,6 @@ Failure cases of the `full` configuration (`generation_raw.jsonl`):
 └── tests/                    # pytest: parser, chunker, tokenizer, router, citations, eval, ...
 ```
 
-**Tests:** `make test` runs 189 unit tests (parser, chunker, BM25 tokenizer, hybrid fusion,
+**Tests:** `make test` runs 198 unit tests (parser, chunker, BM25 tokenizer, hybrid fusion,
 router, prompt and refusal layers, citation checker, metrics, evaluation helpers, UI helpers).
 They need neither the corpus nor an API key.
