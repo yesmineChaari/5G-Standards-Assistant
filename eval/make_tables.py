@@ -104,6 +104,12 @@ def generation_metrics(rows: dict[str, dict[str, Any]], refusal: str) -> dict[st
     return m
 
 
+def ragas_metric(rows: dict[str, dict[str, Any]], metric: str) -> dict[str, float]:
+    """Per-question RAGAS score of in-corpus questions (missing scores are left out)."""
+    return {qid: r["ragas"][metric] for qid, r in rows.items()
+            if r["type"] != "out_of_corpus" and (r.get("ragas") or {}).get(metric) is not None}
+
+
 def micro(rows: dict[str, dict[str, Any]], field: str) -> float | None:
     """Citation validity / correctness pooled over all citations (as in generation_results.md)."""
     n = sum(r["citation_stats"]["n"] for r in rows.values() if r["type"] != "out_of_corpus" and not r["is_refusal"])
@@ -177,16 +183,23 @@ def write_summary(path: Path, ret: dict, gen: dict, refusal: str, unverified: li
             wc = paired_delta(fg["with_citation"], mg["with_citation"])
             cv, cf = micro(full_g, "valid"), micro(g, "valid")
             cc, cg = micro(full_g, "correct"), micro(g, "correct")
+            fa = paired_delta(ragas_metric(full_g, "faithfulness"), ragas_metric(g, "faithfulness"))
+            ac = paired_delta(ragas_metric(full_g, "answer_correctness"), ragas_metric(g, "answer_correctness"))
             rows.append([component, f"`{cfg}`", fmt_delta(*fr[:2]), fmt_delta(*oc[:2], digits=2),
                          fmt_delta(*wc[:2]),
                          f"{cf - cv:+.3f}" if cf is not None and cv is not None else "-",
-                         f"{cg - cc:+.3f}" if cg is not None and cc is not None else "-"])
+                         f"{cg - cc:+.3f}" if cg is not None and cc is not None else "-",
+                         fmt_delta(*fa[:2]) + (f" (n={fa[2]})" if fa[2] else ""),
+                         fmt_delta(*ac[:2]) + (f" (n={ac[2]})" if ac[2] else "")])
         parts.append(md_table(["Component removed", "Config", "Δ False refusals", "Δ Refusal acc. (OOC)",
-                               "Δ With citation", "Δ Cit. validity", "Δ Cit. correctness"], rows) + "\n")
+                               "Δ With citation", "Δ Cit. validity", "Δ Cit. correctness",
+                               "Δ Faithfulness", "Δ Answer corr."], rows) + "\n")
         parts.append("For false refusals a positive delta is worse (more in-corpus questions refused). "
                      "Citation validity and correctness are pooled over all citations (no per-question CI). "
                      "\"With citation\" compares only questions answered (not refused) by both configurations. "
-                     "RAGAS scores exist for `full` only, so they have no ablation delta.\n")
+                     "RAGAS deltas are paired over the questions scored in both configurations (`n`): "
+                     "faithfulness over answers refused by neither, answer correctness over all in-corpus "
+                     "questions (a refusal scores 0).\n")
 
     parts.append("## Charts\n")
     parts.append("- `chart_retrieval.png`: Recall@5 and MRR per configuration with 95% CIs.")

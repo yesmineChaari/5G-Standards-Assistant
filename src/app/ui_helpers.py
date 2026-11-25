@@ -35,6 +35,18 @@ def escape_md(text: str) -> str:
     return _MD_SPECIAL.sub(r"\\\1", text).replace("\n", "  \n")
 
 
+_DISPLAY_SPACES = str.maketrans({" ": " ", " ": " ", " ": " ", "‑": "-"})
+
+
+def normalize_display(text: str) -> str:
+    """Narrow/no-break spaces and non-breaking hyphens written by the LLM become plain characters.
+
+    Some web fonts draw U+202F almost without width ("TS 24.501" looks like "TS24.501").
+    Used for display only; stored answers are unchanged.
+    """
+    return text.translate(_DISPLAY_SPACES)
+
+
 def escape_dollars(text: str) -> str:
     """LLM answers are markdown on purpose; only ``$`` must be escaped (it would start LaTeX)."""
     return text.replace("$", r"\$")

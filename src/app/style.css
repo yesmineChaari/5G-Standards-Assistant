@@ -1,11 +1,15 @@
 @import url("https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
 
+/* Streamlit styles its markdown with generated classes ("p" inside a container class), so the
+   rules for our own classes are scoped under .stApp and the markdown container to take priority. */
+
 :root {
   --ink: #1F1B1C;
   --muted: #5A5453;
   --faint: #8A8280;
   --paper: #F7F4F0;
   --paper-2: #EEE8E1;
+  --card: #FFFDFB;
   --rule: #DDD5CC;
   --wine: #8C2F39;
   --wine-soft: #F3E3E4;
@@ -13,111 +17,120 @@
   --aubergine-soft: #ECE6F0;
   --sans: "Instrument Sans", "Segoe UI", Arial, sans-serif;
   --display: "Archivo", "Segoe UI", Arial, sans-serif;
-  --mono: "IBM Plex Mono", Consolas, "Courier New", monospace;
+  --mono: "IBM Plex Mono", Consolas, monospace;
 }
 
 /* ---------- base ---------- */
-html, body, [class*="css"], .stApp, .stMarkdown, button, input, textarea, select {
-  font-family: var(--sans);
-}
+.stApp, .stApp p, .stApp li, .stApp label, .stApp button, .stApp input, .stApp textarea,
+.stApp [data-baseweb="select"] div, .stApp summary { font-family: var(--sans); word-spacing: 0.05em; }
 .stApp { background: var(--paper); }
 [data-testid="stHeader"] { background: transparent; }
 .stAppDeployButton, [data-testid="stDecoration"], footer { display: none !important; }
-.block-container { max-width: 900px; padding-top: 3rem; padding-bottom: 7rem; }
+.stApp .block-container { max-width: 900px; padding-top: 3rem; padding-bottom: 7rem; }
+
+/* shared mono label */
+.stApp .stMarkdown .app-eyebrow, .stApp .stMarkdown .section-label, .stApp .stMarkdown .q-label,
+.stApp .stMarkdown .a-label, .stApp .stMarkdown .notice-title, .stApp .stMarkdown .side-label {
+  font-family: var(--mono); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.12em;
+  text-transform: uppercase; line-height: 1.4; margin: 0 0 0.5rem; color: var(--faint);
+}
 
 /* ---------- page header ---------- */
-.app-head { border-bottom: 1px solid var(--rule); padding-bottom: 1.25rem; margin-bottom: 1.75rem; }
-.app-eyebrow {
-  font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--wine); margin: 0 0 0.6rem;
+.stApp .stMarkdown .app-head { margin-bottom: 1.8rem; }
+.stApp .stMarkdown .app-eyebrow { color: var(--wine); margin-bottom: 0.7rem; }
+.stApp .stMarkdown .app-title {
+  font-family: var(--display); font-weight: 700; font-size: 2.6rem;
+  letter-spacing: -0.035em; line-height: 1.05; color: var(--ink); margin: 0 0 0.75rem;
 }
-.app-title {
-  font-family: var(--display); font-weight: 700; font-size: 2.4rem;
-  letter-spacing: -0.03em; line-height: 1.05; color: var(--ink); margin: 0 0 0.6rem;
-}
-.app-sub { color: var(--muted); font-size: 1rem; line-height: 1.55; margin: 0; max-width: 42rem; }
+.stApp .stMarkdown .app-sub { color: var(--muted); font-size: 1rem; line-height: 1.6; margin: 0; max-width: 40rem; }
 
-/* ---------- empty state ---------- */
-.section-label {
-  font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--faint); margin: 0.25rem 0 0.6rem;
+/* ---------- buttons ---------- */
+.stApp .stButton > button {
+  border-radius: 4px; border: 1px solid var(--rule); background: var(--card);
+  color: var(--ink); box-shadow: none;
 }
-.stButton > button {
-  border-radius: 4px; border: 1px solid var(--rule); background: #FFFDFB;
-  color: var(--ink); box-shadow: none; font-weight: 500;
-}
-.stButton > button:hover { border-color: var(--wine); color: var(--wine); background: #FFFDFB; }
-.stButton > button:focus:not(:active) { border-color: var(--wine); color: var(--wine); }
-.st-key-examples .stButton > button { justify-content: flex-start; text-align: left; min-height: 3.4rem; padding: 0.6rem 0.9rem; }
-.st-key-examples .stButton > button p { text-align: left; }
+.stApp .stButton > button p { font-size: 0.92rem; font-weight: 500; }
+.stApp .stButton > button:hover { border-color: var(--wine); color: var(--wine); background: var(--card); }
+.stApp .stButton > button:focus:not(:active) { border-color: var(--wine); color: var(--wine); }
+.stApp .st-key-examples .stButton > button { justify-content: flex-start; min-height: 3.6rem; padding: 0.65rem 0.95rem; }
+.stApp .st-key-examples .stButton > button div,
+.stApp .st-key-examples .stButton > button p { text-align: left; justify-content: flex-start; }
 
 /* ---------- chat messages ---------- */
 [data-testid="stChatMessageAvatarUser"],
 [data-testid="stChatMessageAvatarAssistant"],
 [data-testid="stChatMessageAvatarCustom"] { display: none; }
-[data-testid="stChatMessage"] { background: transparent; padding: 0; gap: 0; margin-bottom: 0.25rem; }
-[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) { margin-top: 1.75rem; }
-
-.q-label, .a-label {
-  font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--faint); margin: 0 0 0.3rem;
+.stApp [data-testid="stChatMessage"] { background: transparent; padding: 0; gap: 0; margin-bottom: 0.2rem; }
+.stApp [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
+  margin-top: 1.6rem; padding-top: 1.4rem; border-top: 1px solid var(--rule);
 }
-.q-text {
-  font-family: var(--display); font-weight: 600; font-size: 1.35rem;
-  letter-spacing: -0.01em; line-height: 1.3; color: var(--ink); margin: 0 0 0.5rem;
+.stApp .stMarkdown .q-label { margin-bottom: 0.35rem; }
+.stApp .stMarkdown .q-text {
+  font-family: var(--display); font-weight: 600; font-size: 1.45rem;
+  letter-spacing: -0.015em; line-height: 1.3; color: var(--ink); margin: 0 0 0.4rem;
 }
+.stApp .stMarkdown .a-label { margin: 0.2rem 0 0.45rem; }
 
-/* answer body */
-[data-testid="stChatMessage"] [data-testid="stMarkdownContainer"] p,
-[data-testid="stChatMessage"] [data-testid="stMarkdownContainer"] li { font-size: 1rem; line-height: 1.65; color: var(--ink); }
+/* answer body: plain markdown paragraphs and lists only (our own blocks carry a class) */
+.stApp [data-testid="stChatMessage"] [data-testid="stMarkdownContainer"] p:not([class]),
+.stApp [data-testid="stChatMessage"] [data-testid="stMarkdownContainer"] li { font-size: 1rem; line-height: 1.7; color: var(--ink); }
 
-/* meta line: route, score, latency */
-.meta { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin: 0.1rem 0 0.9rem; }
-.chip {
+/* meta row: route, score, latency */
+.stApp .stMarkdown .meta { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin: 0 0 1rem; }
+.stApp .stMarkdown .chip {
   font-family: var(--mono); font-size: 0.72rem; line-height: 1; color: var(--muted);
-  border: 1px solid var(--rule); border-radius: 3px; padding: 0.32rem 0.5rem; background: #FFFDFB;
-  white-space: nowrap;
+  border: 1px solid var(--rule); border-radius: 3px; padding: 0.34rem 0.5rem; background: var(--card); white-space: nowrap;
 }
-.chip.spec { color: var(--wine); border-color: #E2C3C6; background: var(--wine-soft); }
-.meta-note { font-size: 0.8rem; color: var(--faint); }
+.stApp .stMarkdown .chip.spec { color: var(--wine); border-color: #E2C3C6; background: var(--wine-soft); }
+.stApp .stMarkdown .meta-note { font-size: 0.8rem; color: var(--faint); }
 
 /* notices */
-.notice { border-left: 3px solid var(--aubergine); background: var(--aubergine-soft); padding: 0.85rem 1rem; margin: 0.4rem 0 0.9rem; border-radius: 0 4px 4px 0; }
-.notice.warn { border-left-color: var(--wine); background: var(--wine-soft); }
-.notice-title { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--aubergine); margin: 0 0 0.35rem; }
-.notice.warn .notice-title { color: var(--wine); }
-.notice-body { font-size: 0.95rem; line-height: 1.55; color: var(--ink); margin: 0; }
-.notice-body strong { font-weight: 600; }
-.notice-detail { font-size: 0.85rem; line-height: 1.5; color: var(--muted); margin: 0.35rem 0 0; }
+.stApp .stMarkdown .notice {
+  border-left: 3px solid var(--aubergine); background: var(--aubergine-soft);
+  padding: 0.85rem 1rem; margin: 0.3rem 0 1rem; border-radius: 0 4px 4px 0;
+}
+.stApp .stMarkdown .notice.warn { border-left-color: var(--wine); background: var(--wine-soft); }
+.stApp .stMarkdown .notice-title { color: var(--aubergine); margin-bottom: 0.35rem; }
+.stApp .stMarkdown .notice.warn .notice-title { color: var(--wine); }
+.stApp .stMarkdown .notice-body { font-size: 1rem; font-weight: 600; line-height: 1.5; color: var(--ink); margin: 0; }
+.stApp .stMarkdown .notice-detail { font-size: 0.88rem; line-height: 1.5; color: var(--muted); margin: 0.35rem 0 0; }
 
-/* footer line under an answer */
-.run-info { font-family: var(--mono); font-size: 0.72rem; color: var(--faint); margin: 0.6rem 0 1.1rem; line-height: 1.6; }
+/* line under an answer: model, switches, timings */
+.stApp .stMarkdown .run-info {
+  font-family: var(--mono); font-size: 0.72rem; line-height: 1.6; color: var(--faint); margin: 0.8rem 0 1.2rem;
+}
 
 /* ---------- sources ---------- */
-.sources-head { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--rule); padding-top: 0.9rem; margin-bottom: 0.4rem; }
-[data-testid="stExpander"] details { border: 1px solid var(--rule); border-radius: 4px; background: #FFFDFB; }
-[data-testid="stExpander"] { margin-bottom: 0.35rem; }
-[data-testid="stExpander"] summary { padding: 0.55rem 0.8rem; }
-[data-testid="stExpander"] summary p { font-size: 0.9rem; }
-[data-testid="stExpander"] summary:hover { color: var(--wine); }
-.src-meta { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); line-height: 1.7; margin: 0 0 0.6rem; }
-[data-testid="stExpander"] [data-testid="stMarkdownContainer"] p { font-size: 0.9rem; line-height: 1.6; }
-[data-testid="stExpander"] table { font-size: 0.82rem; }
+.stApp .stMarkdown .sources-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  border-top: 1px solid var(--rule); padding-top: 0.9rem; margin-bottom: 0.1rem;
+}
+.stApp .stMarkdown .sources-head .section-label { margin: 0; }
+.stApp [data-testid="stExpander"] { margin-bottom: 0.1rem; }
+.stApp [data-testid="stExpander"] details { border: 1px solid var(--rule); border-radius: 4px; background: var(--card); }
+.stApp [data-testid="stExpander"] summary { padding: 0.5rem 0.85rem; }
+.stApp [data-testid="stExpander"] summary p { font-size: 0.88rem; color: var(--ink); }
+.stApp [data-testid="stExpander"] summary:hover p { color: var(--wine); }
+.stApp .stMarkdown .src-meta { font-family: var(--mono); font-size: 0.72rem; line-height: 1.7; color: var(--muted); margin: 0 0 0.7rem; }
+.stApp [data-testid="stExpander"] [data-testid="stMarkdownContainer"] p:not([class]) { font-size: 0.9rem; line-height: 1.6; color: var(--ink); }
+.stApp [data-testid="stExpander"] table { font-size: 0.8rem; }
 
-/* inline code in answers */
-[data-testid="stMarkdownContainer"] code { font-family: var(--mono); font-size: 0.85em; color: var(--ink); background: var(--paper-2); }
+.stApp [data-testid="stMarkdownContainer"] code { font-family: var(--mono); font-size: 0.85em; color: var(--ink); background: var(--paper-2); }
 
 /* ---------- sidebar ---------- */
-[data-testid="stSidebar"] { background: var(--paper-2); border-right: 1px solid var(--rule); }
-[data-testid="stSidebar"] .block-container, [data-testid="stSidebarUserContent"] { padding-top: 1.5rem; }
-.side-title { font-family: var(--display); font-weight: 700; font-size: 1.15rem; letter-spacing: -0.01em; color: var(--ink); margin: 0 0 1rem; }
-.side-label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--wine); margin: 1.2rem 0 0.5rem; padding-top: 0.9rem; border-top: 1px solid var(--rule); }
-.side-label.first { border-top: none; padding-top: 0; margin-top: 0; }
-[data-testid="stSidebar"] label p { font-size: 0.9rem; }
-.corpus { font-size: 0.8rem; line-height: 1.6; color: var(--muted); margin-top: 0.4rem; }
-.corpus b { color: var(--ink); font-weight: 600; }
+.stApp [data-testid="stSidebar"] { background: var(--paper-2); border-right: 1px solid var(--rule); }
+.stApp [data-testid="stSidebarUserContent"] { padding-top: 0.5rem; }
+.stApp .stMarkdown .side-title {
+  font-family: var(--display); font-weight: 700; font-size: 1.2rem; letter-spacing: -0.015em;
+  color: var(--ink); margin: 0 0 1.1rem;
+}
+.stApp .stMarkdown .side-label { color: var(--wine); margin: 0.6rem 0 0.6rem; padding-top: 1rem; border-top: 1px solid var(--rule); }
+.stApp .stMarkdown .side-label.first { border-top: none; padding-top: 0; margin-top: 0; }
+.stApp [data-testid="stSidebar"] label p { font-size: 0.9rem; }
+.stApp .stMarkdown .corpus { font-size: 0.85rem; line-height: 1.7; color: var(--muted); margin: 0 0 0.6rem; }
+.stApp .stMarkdown .corpus b { color: var(--ink); font-weight: 600; }
 
 /* ---------- chat input ---------- */
-[data-testid="stChatInput"] { border-radius: 6px; border: 1px solid var(--rule); background: #FFFDFB; }
-[data-testid="stChatInput"]:focus-within { border-color: var(--wine); }
-[data-testid="stBottom"] > div { background: var(--paper); }
+.stApp [data-testid="stChatInput"] { border-radius: 6px; border: 1px solid var(--rule); background: var(--card); }
+.stApp [data-testid="stChatInput"]:focus-within { border-color: var(--wine); }
+.stApp [data-testid="stBottom"] > div { background: var(--paper); }

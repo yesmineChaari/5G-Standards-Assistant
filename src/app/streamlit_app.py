@@ -29,6 +29,7 @@ from src.app.ui_helpers import (  # noqa: E402
     is_cited,
     meta_html,
     model_options,
+    normalize_display,
     notice_html,
     question_html,
     refusal_explanation,
@@ -217,7 +218,7 @@ def render_answer(res: AnswerResult) -> None:
         detail = refusal_explanation(res.refusal_layer, res.top_score, CFG["reranker"]["refusal_threshold"])
         html_block(notice_html("Not in the documents", res.answer, detail))
     else:
-        st.markdown(highlight_citations(escape_dollars(res.answer), res.invalid_citations))
+        st.markdown(highlight_citations(escape_dollars(normalize_display(res.answer)), res.invalid_citations))
         if res.invalid_citations:
             labels = ", ".join(f"({c['spec']}, §{c['section']})" for c in res.invalid_citations)
             html_block(notice_html("Citation check",

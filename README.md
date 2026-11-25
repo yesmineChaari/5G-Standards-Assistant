@@ -96,7 +96,7 @@ Without `make`: `py -3.11 -m venv .venv` (Linux/macOS: `python3.11 -m venv .venv
 | Variable | Used for | Where to get it |
 |---|---|---|
 | `GROQ_API_KEY` | Answer generation (default: `openai/gpt-oss-120b`) and routing ties | console.groq.com (free tier) |
-| `GOOGLE_API_KEY` | RAGAS judge (`gemini-3.1-flash-lite`); Gemini as generator in the app | aistudio.google.com (free tier) |
+| `GOOGLE_API_KEY` | RAGAS judge (`gemini-3.5-flash-lite`); Gemini as generator in the app | aistudio.google.com (free tier) |
 | `OPENAI_API_KEY` | Optional generator | platform.openai.com |
 
 **Local models (optional, Ollama):** install [Ollama](https://ollama.com), run `ollama pull llama3.1:8b`,
@@ -311,15 +311,16 @@ therefore give 95% bootstrap confidence intervals (2,000 resamples over question
 deltas use a **paired** bootstrap (same questions, both configurations); a difference is called
 significant only when its interval excludes 0.
 
-**RAGAS judge.** The judge is `gemini-3.1-flash-lite`, from a different model family than the
-generator (`gpt-oss-120b`), to limit self-preference bias. Scores from an earlier judge of the
-generator's family (`gpt-oss-20b`) on the same answers are kept for comparison.
+**RAGAS judge.** The judge is `gemini-3.5-flash-lite`, from a different model family than the
+generator (`gpt-oss-120b`), to limit self-preference bias. It scores every generation
+configuration, so that ablations compare answers judged by the same model. Scores of two earlier
+judges on the same answers are kept for comparison: `gemini-3.1-flash-lite` (replaced because it
+stayed overloaded, HTTP 503) and `gpt-oss-20b` (the generator's family).
 
 **Configurations.** Retrieval: `dense_only`, `bm25_only`, `hybrid`, `hybrid_rerank` (no routing),
 `full` (hybrid + reranker + routing + acronyms), `full_no_hybrid`, `full_no_rerank`,
 `full_no_acronyms`. Generation: `full`, `hybrid_rerank`, `full_no_hybrid`, `full_no_rerank`,
-`dense_only`. RAGAS (≈ 8k judge tokens per answer) runs on `full` only because of free-tier
-quotas.
+`dense_only`, all five scored by RAGAS (≈ 8k judge tokens per answer).
 
 ## Results
 
@@ -352,11 +353,14 @@ single spec).
 
 | Config | Refusal acc. (OOC) | False refusals | With citation | Citation validity | Citation correctness | Faithfulness | Answer correctness |
 |---|---|---|---|---|---|---|---|
-| **`full`** | 1.00 | 0.11 | 1.00 | 1.00 | 0.63 | 0.92 (n=22) | 0.58 (n=24) |
-| `hybrid_rerank` | 1.00 | 0.11 | 1.00 | 1.00 | 0.61 | - | - |
-| `full_no_hybrid` | 1.00 | 0.07 | 1.00 | 1.00 | 0.59 | - | - |
-| `full_no_rerank` | 1.00 | 0.04 | 1.00 | 0.95 | 0.61 | - | - |
-| `dense_only` | 1.00 | 0.14 | 0.96 | 0.97 | 0.67 | - | - |
+| **`full`** | 1.00 | 0.11 | 1.00 | 1.00 | 0.63 | 0.88 | 0.52 |
+| `hybrid_rerank` | 1.00 | 0.11 | 1.00 | 1.00 | 0.61 | 0.90 | 0.52 |
+| `full_no_hybrid` | 1.00 | 0.07 | 1.00 | 1.00 | 0.59 | 0.87 | 0.53 |
+| `full_no_rerank` | 1.00 | 0.04 | 1.00 | 0.95 | 0.61 | 0.86 | 0.59 |
+| `dense_only` | 1.00 | 0.14 | 0.96 | 0.97 | 0.67 | 0.90 | 0.50 |
+
+Faithfulness is averaged over the answered in-corpus questions (24 to 27 per configuration),
+answer correctness over all 28 in-corpus questions (a refusal scores 0).
 
 - All 3 out-of-corpus questions are refused with the exact sentence, in every configuration:
   by the threshold (layer 1) for n78 and LTE-M in most reranked configurations, by the LLM
@@ -364,31 +368,33 @@ single spec).
   threshold never refused an in-corpus question.
 - **No invented section** in the reranked configurations: every citation points to a retrieved
   passage (validity 1.00). Without the reranker, 3 to 5% of citations point outside the context.
-- `full` by type: faithfulness 0.95 / 0.92 / 0.86 and answer correctness 0.63 / 0.56 / 0.50 for
+- `full` by type: faithfulness 0.95 / 0.88 / 0.79 and answer correctness 0.62 / 0.47 / 0.44 for
   TS 23.501 / TS 24.501 / cross-spec questions. Every answered question now has a citation, but
   on cross-spec questions only 53% of the citations match a gold section (77% and 62% on simple
   TS 23.501 / TS 24.501 questions), the weakest point of the system (see
   [Error analysis](#error-analysis), case 4).
-- **Missing RAGAS scores:** the citation rewrite changed the text of 5 answers, which had to be
-  scored again. For 4 cross-spec answers (X-03, X-04, X-05, X-08) the Gemini judge stayed
-  unavailable ("high demand", HTTP 503) over several attempts, so 7 scores are missing:
-  faithfulness is averaged over 22 answers and answer correctness over 24 (cross-spec: 4 and 4).
-  `make eval-generation` computes them when the judge is available; all other scores are cached.
-- **Judge comparison** (20 shared answers): the same-family judge `gpt-oss-20b` scores
-  faithfulness and answer correctness +0.01 higher than the Gemini judge (Pearson r 0.63 and
-  0.86). This is no sign of a large self-preference effect.
+- **Judge comparison** (`full`, answers scored by both judges): the earlier judges score higher
+  than `gemini-3.5-flash-lite`. Faithfulness: +0.03 for both `gemini-3.1-flash-lite` (22 answers,
+  Pearson r 0.95) and `gpt-oss-20b` (20 answers, r 0.68). Answer correctness: +0.07 (21 answers,
+  r 0.67) and +0.08 (20 answers, r 0.68). The same-family judge is not more lenient than the other
+  Gemini judge, so there is no sign of a large self-preference effect. Absolute RAGAS values
+  depend on the judge (by up to 0.08 on average); only comparisons made with the same judge are
+  meaningful.
 
 ![Citations per configuration](eval/results/chart_citations.png)
 
 ### Ablations (paired 95% CI; `*` = significant)
 
-| Component removed | Δ Recall@5 | Δ MRR | Δ Both specs@5 (cross-spec) | Δ False refusals |
-|---|---|---|---|---|
-| Hybrid search (BM25 + RRF) | +0.000 [-0.05, +0.05] | +0.011 [-0.04, +0.07] | +0.000 | -0.036 [-0.14, +0.07] |
-| **Reranker** | **-0.101 [-0.17, -0.04] \*** | -0.029 [-0.18, +0.12] | +0.000 | -0.071 [-0.18, +0.00] |
-| Routing | +0.000 [-0.03, +0.03] | -0.017 [-0.07, +0.02] | +0.250 [-0.25, +0.62] | +0.000 |
-| Acronym expansion | +0.018 [-0.02, +0.06] | +0.005 [+0.00, +0.01] | +0.000 | - |
-| All three (→ `dense_only`) | -0.021 [-0.14, +0.10] | -0.005 [-0.20, +0.18] | +0.375 [+0.12, +0.75] \* | +0.036 [-0.14, +0.21] |
+| Component removed | Δ Recall@5 | Δ MRR | Δ Both specs@5 (cross-spec) | Δ False refusals | Δ Faithfulness | Δ Answer correctness |
+|---|---|---|---|---|---|---|
+| Hybrid search (BM25 + RRF) | +0.000 [-0.05, +0.05] | +0.011 [-0.04, +0.07] | +0.000 | -0.036 [-0.14, +0.07] | +0.019 [-0.02, +0.06] | +0.013 [-0.07, +0.10] |
+| **Reranker** | **-0.101 [-0.17, -0.04] \*** | -0.029 [-0.18, +0.12] | +0.000 | -0.071 [-0.18, +0.00] | -0.019 [-0.10, +0.05] | +0.074 [-0.02, +0.18] |
+| Routing | +0.000 [-0.03, +0.03] | -0.017 [-0.07, +0.02] | +0.250 [-0.25, +0.62] | +0.000 | +0.022 [-0.01, +0.07] | +0.000 [-0.06, +0.06] |
+| Acronym expansion | +0.018 [-0.02, +0.06] | +0.005 [+0.00, +0.01] | +0.000 | - | - | - |
+| All three (→ `dense_only`) | -0.021 [-0.14, +0.10] | -0.005 [-0.20, +0.18] | +0.375 [+0.12, +0.75] \* | +0.036 [-0.14, +0.21] | +0.040 [-0.05, +0.13] | -0.018 [-0.14, +0.11] |
+
+RAGAS deltas are paired over the questions scored in both configurations (faithfulness: 21 to 25
+answers refused by neither; answer correctness: all 28 in-corpus questions).
 
 ![Ablation deltas](eval/results/chart_ablation.png)
 
@@ -402,6 +408,9 @@ single spec).
   coverage: 3 of 8 were routed to a single spec, and without routing both specs appear in the
   top 5 more often (+0.25, not significant).
 - **Acronym expansion** has no measurable effect.
+- **Answer quality (RAGAS)** does not differ significantly between configurations. The largest
+  change is answer correctness without the reranker (+0.07, not significant), which matches its
+  fewer false refusals (a refusal scores 0).
 - With 28 questions (8 cross-spec), effects smaller than about 0.05 to 0.10 cannot be detected.
 
 ### Reproducibility check
@@ -466,8 +475,9 @@ Failure cases of the `full` configuration (`generation_raw.jsonl`):
 - **Small test set:** 31 questions (8 cross-spec, 3 out-of-corpus) only detect large differences,
   and its gold sections are not yet verified by a person.
 - **LLM-as-judge:** RAGAS scores depend on the judge model (a lightweight Gemini model, because
-  of free-tier quotas) and its parsing of claims. The two judges agree on averages but disagree on
-  single answers (mean absolute difference 0.05 to 0.08). RAGAS runs on `full` only.
+  of free-tier quotas) and its parsing of claims. The three judges correlate on single answers
+  (Pearson r 0.68 to 0.95 for faithfulness, 0.67 to 0.68 for answer correctness) but differ by up
+  to 0.11 per answer on average, and their means differ by up to 0.08.
 - **Single release:** Rel-18 only; no version comparison and no TS 23.502 (procedures), so
   procedure-flow questions rely on 23.501's descriptions.
 - **Free-tier API LLMs:** quotas limit how often the evaluation can be recomputed (hence the

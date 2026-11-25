@@ -59,3 +59,9 @@ def test_spec_filters() -> None:
 def test_refusal_explanations() -> None:
     assert "0.036" in refusal_explanation("threshold", 0.036, 0.15)
     assert "prompt rule" in refusal_explanation("llm", 0.98, 0.15)
+
+
+def test_normalize_display_replaces_narrow_spaces_and_hyphens() -> None:
+    from src.app.ui_helpers import normalize_display
+
+    assert normalize_display("TS\u202f24.501, 5G\u2011GUTI\u00a0x") == "TS 24.501, 5G-GUTI x"
