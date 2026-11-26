@@ -22,6 +22,7 @@ information is not in the corpus, the answer is exactly:
 [Method](#method) ·
 [Evaluation](#evaluation) ·
 [Results](#results) ·
+[Bonus: model comparison](#bonus-model-comparison) ·
 [Error analysis](#error-analysis) ·
 [Limitations](#limitations) ·
 [Perspectives](#perspectives) ·
@@ -118,6 +119,7 @@ then choose *ollama (local)* in the app sidebar or set `llm.provider: "ollama"` 
 | `make tables` | Ablation summary and charts | `python -m eval.make_tables` |
 | `make eval` | `eval-retrieval` + `eval-generation` + `tables` | |
 | `make all` | `download` → `ingest` → `index` → `test` → `eval` | |
+| `make bonus-models` | Model comparison: other generators and embedding models (see [Bonus](#bonus-model-comparison)) | `python -m eval.run_model_comparison llm`, `python -m eval.run_model_comparison embeddings` |
 
 (`python` = `.venv\Scripts\python` on Windows, `.venv/bin/python` elsewhere.)
 
@@ -439,6 +441,46 @@ other applications), during the sixth retrieval configuration. The generation ev
 therefore not replayed in the fresh clone; that part of the check remains to be run
 (`make eval` in the clone resumes from the retrieval results already computed).
 
+## Bonus: model comparison
+
+Full report: [`eval/results/bonus_model_comparison.md`](eval/results/bonus_model_comparison.md)
+(`make bonus-models`). Raw results: `model_comparison_llm_raw.jsonl`,
+`model_comparison_embeddings_raw.jsonl`. Deltas are paired, with bootstrap 95% CIs; none of them
+excludes 0.
+
+**Generator: API vs local.** The local model `llama3.2:3b` (Ollama, 4 GB laptop GPU) answers every
+question from exactly the six passages that `full` gave the main generator, with the same prompt
+and the same RAGAS judge, so only the generator changes. Its calls are recorded, so the comparison
+replays without Ollama.
+
+| Generator | Refusal acc. (OOC) | False refusals | With citation | Cit. validity | Cit. correctness | Faithfulness | Answer corr. | LLM time (s) |
+|---|---|---|---|---|---|---|---|---|
+| `gpt-oss-120b` (Groq, main) | 1.00 | 0.11 | 1.00 | 1.00 | 0.63 | 0.88 | 0.52 | 3.7 |
+| `llama3.2:3b` (local) | 1.00 | 0.00 | 0.71 | 0.73 | 0.59 | 0.84 | 0.50 | 41.1 |
+
+- The answers are about as faithful and correct (Δ faithfulness −0.025 [−0.12, +0.07], Δ answer
+  correctness −0.018 [−0.10, +0.07]), with the same passages as input.
+- The difference is in the citations: the 3B model drops the `(TS xx.xxx, §x.x)` format in 29% of
+  answers, and 27% of its citations name a section that is not in the passages. The citation
+  check flags them in the app.
+- It makes no false refusal (the main model refuses 3 answerable questions), at 11 times the
+  latency on a laptop GPU.
+
+**Embedding model.** Each model gets its own Chroma index; chunks, BM25, reranker and router are
+unchanged. 28 in-corpus questions.
+
+| Embedding model | Parameters | R@5 `dense_only` | MRR `dense_only` | R@5 `full` | MRR `full` | Dense search (s) |
+|---|---|---|---|---|---|---|
+| `bge-base-en-v1.5` (main) | 110 M | 0.723 | 0.759 | 0.708 | 0.750 | 0.14 |
+| `bge-small-en-v1.5` | 33 M | 0.741 | 0.818 | 0.750 | 0.688 | 0.06 |
+| `gte-base` | 110 M | 0.711 | 0.793 | 0.735 | 0.755 | 0.09 |
+
+- No embedding model is significantly better: every Δ Recall@5 and Δ MRR CI contains 0, and
+  the differences change sign between configurations (`bge-small` MRR +0.060 in `dense_only`,
+  −0.062 in `full`). With 28 questions, they are within noise.
+- `bge-small-en-v1.5` is as good on this test set with a third of the parameters, so it is a
+  reasonable choice for a smaller machine. The main model is kept.
+
 ## Error analysis
 
 Failure cases of the `full` configuration (`generation_raw.jsonl`):
@@ -446,8 +488,10 @@ Failure cases of the `full` configuration (`generation_raw.jsonl`):
 1. **Information only in a figure: S24-04** *"What are the main 5GMM states of the UE?"* The
    overview of the states is a state diagram (Figure 5.1.3.2.1.1.1), lost in parsing. Each main
    state is its own short sub-section (§5.1.3.2.1.2.1 to §5.1.3.2.1.2.6), so no chunk lists them
-   together. The retrieved context contains the "General" clause that points to the figure and a
-   few individual states, and the LLM refuses (false refusal).
+   together. In `full`, the context holds the "General" clause that points to the figure and
+   clauses on the sub-states, but none of the six main-state sub-sections, and the LLM refuses
+   (false refusal). The configurations without the reranker or without BM25 retrieve one or two
+   main-state sub-sections and answer, but name only two or three of the six states.
 2. **The reranker prefers a table over the defining sentence: S24-09** *"Which identities can the
    5GS mobile identity IE carry?"* The answer is the first paragraph of §9.11.3.4 ("…to provide
    either the SUCI, the 5G-GUTI, the IMEI, …"). In `full`, the reranker keeps two parts of the
@@ -459,7 +503,9 @@ Failure cases of the `full` configuration (`generation_raw.jsonl`):
    the gold sections (23.501 §5.3.2.1, 24.501 §5.5.1.2.2 / §5.5.1.2.4) is retrieved. The context
    holds connection management (23.501 §5.3.3.1), slice selection at registration (§5.15.5.2.1)
    and NAS security establishment (24.501 §4.4.2.5), all of which match "registration" and "NAS".
-   The LLM refuses, in every configuration.
+   The LLM refuses in four of the five configurations. `dense_only` retrieves 24.501 §5.5.1.2.4
+   and answers the NAS part only (REGISTRATION REQUEST and REGISTRATION ACCEPT), without the
+   architecture part.
 4. **Citation format on cross-spec answers: X-03, X-04, X-05, X-08.** With two specs in the
    context, the model often drops the required `(TS xx.xxx, §x.x)` format. It cites passage numbers
    (`[1]`, `[2][6]`), gpt-oss reference marks (`【2†L7-L12】`) or a section without its spec
@@ -511,7 +557,7 @@ Failure cases of the `full` configuration (`generation_raw.jsonl`):
 ```
 ├── config.yaml               # all parameters
 ├── CORPUS.md                 # spec versions, URLs, SHA256
-├── Makefile                  # install, download, ingest, index, app, test, eval, all
+├── Makefile                  # install, download, ingest, index, app, test, eval, all, bonus-models
 ├── requirements.txt          # pinned dependencies (Python 3.11)
 ├── .env.example              # API keys template
 ├── data/
@@ -533,6 +579,7 @@ Failure cases of the `full` configuration (`generation_raw.jsonl`):
 │   ├── judge.py              # RAGAS judge
 │   ├── llm_cache.py          # recorded LLM calls
 │   ├── make_tables.py        # ablation summary + charts
+│   ├── run_model_comparison.py  # bonus: other generators and embedding models
 │   ├── cache/                # recorded LLM calls and RAGAS scores
 │   └── results/              # reports (.md), raw results (.jsonl), charts (.png)
 ├── scripts/                  # inspect_chunks.py, find_sections.py

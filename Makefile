@@ -9,7 +9,7 @@ else
   BOOTSTRAP := python3.11
 endif
 
-.PHONY: install download ingest index app eval eval-retrieval eval-generation tables test all
+.PHONY: install download ingest index app eval eval-retrieval eval-generation tables test all bonus-models
 
 install:
 	$(BOOTSTRAP) -m venv .venv
@@ -46,3 +46,8 @@ test:
 	$(PY) -m pytest -q tests
 
 all: download ingest index test eval
+
+# Bonus: model comparison (replays recorded calls; new generators need Ollama, new embedding models build their own index)
+bonus-models:
+	$(PY) -m eval.run_model_comparison llm
+	$(PY) -m eval.run_model_comparison embeddings
