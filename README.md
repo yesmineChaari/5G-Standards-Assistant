@@ -67,7 +67,7 @@ flowchart LR
 | Retrieval | `src/retrieve/acronyms.py`, `router.py`, `hybrid.py` (RRF), `reranker.py`, `pipeline.py` (entry point) |
 | Generation | `src/generate/prompt.py`, `llm.py` (Groq / Gemini / OpenAI / Ollama), `citation_check.py`, `answer.py` (entry point) |
 | Interface | `src/app/streamlit_app.py` |
-| Evaluation | `eval/run_retrieval_eval.py`, `eval/run_generation_eval.py`, `eval/make_tables.py` |
+| Evaluation | `eval/run_retrieval_eval.py`, `eval/run_generation_eval.py`, `eval/make_tables.py`, `eval/run_model_comparison.py` (bonus) |
 
 ## Corpus
 
@@ -100,8 +100,8 @@ Without `make`: `py -3.11 -m venv .venv` (Linux/macOS: `python3.11 -m venv .venv
 | `GOOGLE_API_KEY` | RAGAS judge (`gemini-3.5-flash-lite`); Gemini as generator in the app | aistudio.google.com (free tier) |
 | `OPENAI_API_KEY` | Optional generator | platform.openai.com |
 
-**Local models (optional, Ollama):** install [Ollama](https://ollama.com), run `ollama pull llama3.1:8b`,
-then choose *ollama (local)* in the app sidebar or set `llm.provider: "ollama"` and `llm.model` in
+**Local models (optional, Ollama):** install [Ollama](https://ollama.com), run e.g. `ollama pull llama3.2:3b`
+(the local model of the [model comparison](#bonus-model-comparison)), then choose *ollama (local)* in the app sidebar or set `llm.provider: "ollama"` and `llm.model` in
 `config.yaml`. `OLLAMA_HOST` in `.env` changes the server address (default `http://localhost:11434`).
 
 ## Execution
@@ -530,7 +530,7 @@ Failure cases of the `full` configuration (`generation_raw.jsonl`):
   how sensitive the conclusions are at this size.
 - **LLM-as-judge:** RAGAS scores depend on the judge model (a lightweight Gemini model, because
   of free-tier quotas) and its parsing of claims. The three judges correlate on single answers
-  (Pearson r 0.68 to 0.95 for faithfulness, 0.67 to 0.68 for answer correctness) but differ by up
+  (Pearson r 0.68 to 0.95 for faithfulness, 0.67 to 0.69 for answer correctness) but differ by up
   to 0.11 per answer on average, and their means differ by up to 0.08.
 - **Single release:** Rel-18 only; no version comparison and no TS 23.502 (procedures), so
   procedure-flow questions rely on 23.501's descriptions.
@@ -560,6 +560,7 @@ Failure cases of the `full` configuration (`generation_raw.jsonl`):
 ├── Makefile                  # install, download, ingest, index, app, test, eval, all, bonus-models
 ├── requirements.txt          # pinned dependencies (Python 3.11)
 ├── .env.example              # API keys template
+├── .streamlit/config.toml    # app theme
 ├── data/
 │   ├── raw/                  # downloaded .zip / .docx (not versioned)
 │   ├── processed/            # chunks.jsonl, acronyms.json
@@ -570,7 +571,7 @@ Failure cases of the `full` configuration (`generation_raw.jsonl`):
 │   ├── index/                # embed.py, vector_store.py, bm25_index.py
 │   ├── retrieve/             # acronyms.py, router.py, hybrid.py, reranker.py, pipeline.py
 │   ├── generate/             # prompt.py, llm.py, citation_check.py, answer.py
-│   └── app/                  # streamlit_app.py, ui_helpers.py
+│   └── app/                  # streamlit_app.py, ui_helpers.py, style.css
 ├── eval/
 │   ├── testset.yaml          # 31 questions with gold sections and reference answers
 │   ├── metrics.py            # matching rule, Recall@k, MRR, bootstrap
